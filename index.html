@@ -5173,7 +5173,7 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Main$initialModel = {currentOffer: $elm$core$Maybe$Nothing, formParticipant: '', formRent: '', participants: _List_Nil, rooms: _List_Nil, totalRent: $elm$core$Maybe$Nothing};
+var $author$project$Main$initialModel = {currentOffer: $elm$core$Maybe$Nothing, formParticipant: '', formRent: '', formRoom: '', participants: _List_Nil, rooms: _List_Nil, totalRent: $elm$core$Maybe$Nothing};
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $elm$core$Platform$Sub$batch = _Platform_batch;
@@ -5209,21 +5209,31 @@ var $author$project$Main$update = F2(
 						model,
 						{formParticipant: string}),
 					$elm$core$Platform$Cmd$none);
+			case 'SetFormRoom':
+				var string = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{formRoom: string}),
+					$elm$core$Platform$Cmd$none);
 			case 'SetTotalRent':
 				var rentString = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
+							formRent: '',
 							totalRent: $elm$core$String$toFloat(rentString)
 						}),
 					$elm$core$Platform$Cmd$none);
 			case 'AddParticipant':
-				var _new = msg.a;
+				var nameString = msg.a;
+				var _new = {assignment: $elm$core$Maybe$Nothing, name: nameString, price: $elm$core$Maybe$Nothing};
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
+							formParticipant: '',
 							participants: A2(
 								$elm$core$List$append,
 								model.participants,
@@ -5235,11 +5245,13 @@ var $author$project$Main$update = F2(
 				var person = msg.a;
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 			case 'AddRoom':
-				var newRoom = msg.a;
+				var newRoomString = msg.a;
+				var newRoom = {title: newRoomString};
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
 						{
+							formRoom: '',
 							rooms: A2(
 								$elm$core$List$append,
 								model.rooms,
@@ -5253,18 +5265,37 @@ var $author$project$Main$update = F2(
 		}
 	});
 var $elm$html$Html$div = _VirtualDom_node('div');
+var $author$project$Main$AddParticipant = function (a) {
+	return {$: 'AddParticipant', a: a};
+};
 var $author$project$Main$SetFormParticipant = function (a) {
 	return {$: 'SetFormParticipant', a: a};
 };
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$input = _VirtualDom_node('input');
+var $elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var $elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'click',
+		$elm$json$Json$Decode$succeed(msg));
+};
 var $elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
 };
 var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
 	return {$: 'MayStopPropagation', a: a};
 };
-var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
 var $elm$html$Html$Events$stopPropagationOn = F2(
 	function (event, decoder) {
 		return A2(
@@ -5321,34 +5352,40 @@ var $author$project$Main$participantCreator = function (model) {
 				_List_Nil),
 				A2(
 				$elm$html$Html$button,
-				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$Events$onClick(
+						$author$project$Main$AddParticipant(model.formParticipant))
+					]),
 				_List_fromArray(
 					[
 						$elm$html$Html$text('Add')
 					]))
 			]));
 };
+var $elm$html$Html$p = _VirtualDom_node('p');
+var $author$project$Main$participantViewer = function (parts) {
+	return A2(
+		$elm$html$Html$div,
+		_List_Nil,
+		A2(
+			$elm$core$List$map,
+			function (element) {
+				return A2(
+					$elm$html$Html$p,
+					_List_Nil,
+					_List_fromArray(
+						[
+							$elm$html$Html$text(element.name)
+						]));
+			},
+			parts));
+};
 var $author$project$Main$SetFormRent = function (a) {
 	return {$: 'SetFormRent', a: a};
 };
 var $author$project$Main$SetTotalRent = function (a) {
 	return {$: 'SetTotalRent', a: a};
-};
-var $elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
-};
-var $elm$html$Html$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			$elm$virtual_dom$VirtualDom$on,
-			event,
-			$elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
-var $elm$html$Html$Events$onClick = function (msg) {
-	return A2(
-		$elm$html$Html$Events$on,
-		'click',
-		$elm$json$Json$Decode$succeed(msg));
 };
 var $author$project$Main$rentSetter = function (model) {
 	return A2(
@@ -5378,6 +5415,57 @@ var $author$project$Main$rentSetter = function (model) {
 					]))
 			]));
 };
+var $author$project$Main$AddRoom = function (a) {
+	return {$: 'AddRoom', a: a};
+};
+var $author$project$Main$SetFormRoom = function (a) {
+	return {$: 'SetFormRoom', a: a};
+};
+var $author$project$Main$roomAdder = function (model) {
+	return A2(
+		$elm$html$Html$div,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$input,
+				_List_fromArray(
+					[
+						$elm$html$Html$Events$onInput($author$project$Main$SetFormRoom),
+						$elm$html$Html$Attributes$placeholder('Create a new room'),
+						$elm$html$Html$Attributes$value(model.formRoom)
+					]),
+				_List_Nil),
+				A2(
+				$elm$html$Html$button,
+				_List_fromArray(
+					[
+						$elm$html$Html$Events$onClick(
+						$author$project$Main$AddRoom(model.formRoom))
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Add Room')
+					]))
+			]));
+};
+var $author$project$Main$roomListViewer = function (rooms) {
+	return A2(
+		$elm$html$Html$div,
+		_List_Nil,
+		A2(
+			$elm$core$List$map,
+			function (room) {
+				return A2(
+					$elm$html$Html$p,
+					_List_Nil,
+					_List_fromArray(
+						[
+							$elm$html$Html$text(room.title)
+						]));
+			},
+			rooms));
+};
 var $author$project$Main$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
@@ -5385,7 +5473,10 @@ var $author$project$Main$view = function (model) {
 		_List_fromArray(
 			[
 				$author$project$Main$rentSetter(model),
-				$author$project$Main$participantCreator(model)
+				$author$project$Main$participantCreator(model),
+				$author$project$Main$roomAdder(model),
+				$author$project$Main$participantViewer(model.participants),
+				$author$project$Main$roomListViewer(model.rooms)
 			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$element(

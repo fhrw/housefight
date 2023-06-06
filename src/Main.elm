@@ -27,6 +27,7 @@ type alias Model =
     , currentOffer : Maybe Participant
     , formRent : String
     , formParticipant : String
+    , formRoom : String
     }
 
 
@@ -49,6 +50,7 @@ initialModel =
     , currentOffer = Nothing
     , formRent = ""
     , formParticipant = ""
+    , formRoom = ""
     }
 
 
@@ -60,10 +62,11 @@ type Msg
     = NoOp
     | SetFormRent String
     | SetFormParticipant String
+    | SetFormRoom String
     | SetTotalRent String
     | AddParticipant String
     | DeleteParticipant Participant
-    | AddRoom Room
+    | AddRoom String
     | DeleteRoom Room
 
 
@@ -79,17 +82,45 @@ update msg model =
         SetFormParticipant string ->
             ( { model | formParticipant = string }, Cmd.none )
 
-        SetTotalRent rentString ->
-            ( { model | totalRent = String.toFloat rentString }, Cmd.none )
+        SetFormRoom string ->
+            ( { model | formRoom = string }, Cmd.none )
 
-        AddParticipant new ->
-            ( { model | participants = List.append model.participants [ new ] }, Cmd.none )
+        SetTotalRent rentString ->
+            ( { model
+                | totalRent = String.toFloat rentString
+                , formRent = ""
+              }
+            , Cmd.none
+            )
+
+        AddParticipant nameString ->
+            let
+                new : Participant
+                new =
+                    { name = nameString, price = Nothing, assignment = Nothing }
+            in
+            ( { model
+                | participants = List.append model.participants [ new ]
+                , formParticipant = ""
+              }
+            , Cmd.none
+            )
 
         DeleteParticipant person ->
             ( model, Cmd.none )
 
-        AddRoom newRoom ->
-            ( { model | rooms = List.append model.rooms [ newRoom ] }, Cmd.none )
+        AddRoom newRoomString ->
+            let
+                newRoom : Room
+                newRoom =
+                    { title = newRoomString }
+            in
+            ( { model
+                | rooms = List.append model.rooms [ newRoom ]
+                , formRoom = ""
+              }
+            , Cmd.none
+            )
 
         DeleteRoom room ->
             ( model, Cmd.none )
@@ -113,15 +144,34 @@ view model =
     div []
         [ rentSetter model
         , participantCreator model
+        , roomAdder model
+        , participantViewer model.participants
+        , roomListViewer model.rooms
         ]
 
 
-participantCreator : Model -> Html Msg
-participantCreator model =
+totalPriceToString : Maybe Float -> String
+totalPriceToString mFloat =
+    case mFloat of
+        Nothing ->
+            ""
+
+        _ ->
+            String.fromFloat 42
+
+
+roomAdder : Model -> Html Msg
+roomAdder model =
     div []
-        [ input [ placeholder "Enter Participant", value model.formParticipant, onInput SetFormParticipant ] []
-        , button [] [ text "Add" ]
+        [ input [ onInput SetFormRoom, placeholder "Create a new room", value model.formRoom ] []
+        , button [ onClick (AddRoom model.formRoom) ] [ text "Add Room" ]
         ]
+
+
+roomListViewer : List Room -> Html Msg
+roomListViewer rooms =
+    div []
+        (List.map (\room -> p [] [ text room.title ]) rooms)
 
 
 rentSetter : Model -> Html Msg
@@ -130,3 +180,20 @@ rentSetter model =
         [ input [ placeholder "Total Rent", value model.formRent, onInput SetFormRent ] []
         , button [ onClick (SetTotalRent model.formRent) ] [ text "Set" ]
         ]
+
+
+participantCreator : Model -> Html Msg
+participantCreator model =
+    div []
+        [ input [ placeholder "Enter Participant", value model.formParticipant, onInput SetFormParticipant ] []
+        , button [ onClick (AddParticipant model.formParticipant) ] [ text "Add" ]
+        ]
+
+
+participantViewer : List Participant -> Html Msg
+participantViewer parts =
+    div []
+        (List.map
+            (\element -> p [] [ text element.name ])
+            parts
+        )
