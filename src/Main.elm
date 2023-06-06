@@ -1,7 +1,9 @@
 module Main exposing (main)
 
 import Browser
-import Html exposing (Html, button, div, h1, h2, p, text)
+import Html exposing (Html, button, div, h1, h2, input, p, text)
+import Html.Attributes exposing (placeholder, value)
+import Html.Events exposing (onClick, onInput)
 
 
 
@@ -23,6 +25,8 @@ type alias Model =
     , participants : List Participant
     , rooms : List Room
     , currentOffer : Maybe Participant
+    , formRent : String
+    , formParticipant : String
     }
 
 
@@ -43,6 +47,8 @@ initialModel =
     , participants = []
     , rooms = []
     , currentOffer = Nothing
+    , formRent = ""
+    , formParticipant = ""
     }
 
 
@@ -52,8 +58,10 @@ initialModel =
 
 type Msg
     = NoOp
-    | SetTotalRent Float
-    | AddParticipant Participant
+    | SetFormRent String
+    | SetFormParticipant String
+    | SetTotalRent String
+    | AddParticipant String
     | DeleteParticipant Participant
     | AddRoom Room
     | DeleteRoom Room
@@ -65,8 +73,14 @@ update msg model =
         NoOp ->
             ( model, Cmd.none )
 
-        SetTotalRent x ->
-            ( { model | totalRent = Just x }, Cmd.none )
+        SetFormRent rentString ->
+            ( { model | formRent = rentString }, Cmd.none )
+
+        SetFormParticipant string ->
+            ( { model | formParticipant = string }, Cmd.none )
+
+        SetTotalRent rentString ->
+            ( { model | totalRent = String.toFloat rentString }, Cmd.none )
 
         AddParticipant new ->
             ( { model | participants = List.append model.participants [ new ] }, Cmd.none )
@@ -96,4 +110,23 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    h1 [] [ text "this is it" ]
+    div []
+        [ rentSetter model
+        , participantCreator model
+        ]
+
+
+participantCreator : Model -> Html Msg
+participantCreator model =
+    div []
+        [ input [ placeholder "Enter Participant", value model.formParticipant, onInput SetFormParticipant ] []
+        , button [] [ text "Add" ]
+        ]
+
+
+rentSetter : Model -> Html Msg
+rentSetter model =
+    div []
+        [ input [ placeholder "Total Rent", value model.formRent, onInput SetFormRent ] []
+        , button [ onClick (SetTotalRent model.formRent) ] [ text "Set" ]
+        ]
