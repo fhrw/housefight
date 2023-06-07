@@ -1,9 +1,10 @@
 module Main exposing (main)
 
 import Browser
-import Html exposing (Html, button, div, h1, h2, input, p, text)
+import Html exposing (Html, button, div, h1, h2, h3, input, p, text)
 import Html.Attributes exposing (placeholder, value)
 import Html.Events exposing (onClick, onInput)
+import List exposing (length)
 
 
 
@@ -25,10 +26,17 @@ type alias Model =
     , participants : List Participant
     , rooms : List Room
     , currentOffer : Maybe Participant
+    , values : List Value
+
+    -- FORM INPUTS
     , formRent : String
     , formParticipant : String
     , formRoom : String
     }
+
+
+type alias Value =
+    { room : Room, val : Float }
 
 
 type alias Participant =
@@ -68,6 +76,7 @@ type Msg
     | DeleteParticipant Participant
     | AddRoom String
     | DeleteRoom Room
+    | SetStartingValues Float
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -125,6 +134,49 @@ update msg model =
         DeleteRoom room ->
             ( model, Cmd.none )
 
+        SetStartingValues total ->
+            let
+                numRooms =
+                    List.length model.rooms
+            in
+            if numRooms < 1 then
+                ( model, Cmd.none )
+
+            else
+                ( { model | values = model.values }, Cmd.none )
+
+
+findStartingValues : List Room -> Float -> List Value
+findStartingValues rooms total =
+    let
+        len =
+            List.length rooms
+
+        evenSplit =
+            total / toFloat len
+    in
+    List.map (\x -> { room = x, val = evenSplit }) rooms
+
+
+allParticipantsHappy : List Participant -> Bool
+allParticipantsHappy people =
+    let
+        unhappy : List Participant
+        unhappy =
+            List.filter (\x -> isAssigned x) people
+    in
+    List.length unhappy == 0
+
+
+isAssigned : Participant -> Bool
+isAssigned person =
+    case person.assignment of
+        Nothing ->
+            False
+
+        _ ->
+            True
+
 
 
 -- SUBSCRIPTIONS
@@ -145,6 +197,7 @@ view model =
         [ rentSetter model
         , participantCreator model
         , roomAdder model
+        , totalPriceView model.totalRent
         , participantViewer model.participants
         , roomListViewer model.rooms
         ]
@@ -156,8 +209,19 @@ totalPriceToString mFloat =
         Nothing ->
             ""
 
-        _ ->
-            String.fromFloat 42
+        Just price ->
+            String.fromFloat price
+
+
+totalPriceView : Maybe Float -> Html Msg
+totalPriceView price =
+    div []
+        [ h3 []
+            [ text "Total Price" ]
+        , p
+            []
+            [ text (totalPriceToString price) ]
+        ]
 
 
 roomAdder : Model -> Html Msg

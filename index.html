@@ -5466,6 +5466,39 @@ var $author$project$Main$roomListViewer = function (rooms) {
 			},
 			rooms));
 };
+var $elm$html$Html$h3 = _VirtualDom_node('h3');
+var $elm$core$String$fromFloat = _String_fromNumber;
+var $author$project$Main$totalPriceToString = function (mFloat) {
+	if (mFloat.$ === 'Nothing') {
+		return '';
+	} else {
+		var price = mFloat.a;
+		return $elm$core$String$fromFloat(price);
+	}
+};
+var $author$project$Main$totalPriceView = function (price) {
+	return A2(
+		$elm$html$Html$div,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$h3,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Total Price')
+					])),
+				A2(
+				$elm$html$Html$p,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						$author$project$Main$totalPriceToString(price))
+					]))
+			]));
+};
 var $author$project$Main$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
@@ -5475,6 +5508,7 @@ var $author$project$Main$view = function (model) {
 				$author$project$Main$rentSetter(model),
 				$author$project$Main$participantCreator(model),
 				$author$project$Main$roomAdder(model),
+				$author$project$Main$totalPriceView(model.totalRent),
 				$author$project$Main$participantViewer(model.participants),
 				$author$project$Main$roomListViewer(model.rooms)
 			]));
