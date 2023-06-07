@@ -35,6 +35,18 @@ type alias Model =
     }
 
 
+validateModel : Model -> Bool
+validateModel model =
+    let
+        roomLength =
+            List.length model.rooms
+
+        partsLength =
+            List.length model.participants
+    in
+    roomLength > 0 && partsLength > 0 && roomLength == partsLength
+
+
 type alias Value =
     { room : Room, val : Float }
 
@@ -56,6 +68,9 @@ initialModel =
     , participants = []
     , rooms = []
     , currentOffer = Nothing
+    , values = []
+
+    -- form
     , formRent = ""
     , formParticipant = ""
     , formRoom = ""
@@ -143,7 +158,12 @@ update msg model =
                 ( model, Cmd.none )
 
             else
-                ( { model | values = model.values }, Cmd.none )
+                case model.totalRent of
+                    Nothing ->
+                        ( model, Cmd.none )
+
+                    Just rent ->
+                        ( { model | values = findStartingValues model.rooms rent }, Cmd.none )
 
 
 findStartingValues : List Room -> Float -> List Value
