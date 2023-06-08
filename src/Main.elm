@@ -1,10 +1,11 @@
 module Main exposing (main)
 
+import Auction exposing (Auction, emptyAuction, initAuction)
 import Browser
 import Html exposing (Html, button, div, h1, h2, h3, input, p, text)
 import Html.Attributes exposing (placeholder, value)
 import Html.Events exposing (onClick, onInput)
-import List exposing (length)
+import Participant exposing (Participant)
 
 
 
@@ -25,13 +26,30 @@ type alias Model =
     { totalRent : Maybe Float
     , participants : List Participant
     , rooms : List Room
-    , currentOffer : Maybe Participant
-    , values : List Value
+    , auction : Auction
 
     -- FORM INPUTS
     , formRent : String
     , formParticipant : String
     , formRoom : String
+    }
+
+
+type alias Room =
+    { title : String }
+
+
+initialModel : Model
+initialModel =
+    { totalRent = Nothing
+    , participants = []
+    , rooms = []
+    , auction = emptyAuction
+
+    -- form
+    , formRent = ""
+    , formParticipant = ""
+    , formRoom = ""
     }
 
 
@@ -45,36 +63,6 @@ validateModel model =
             List.length model.participants
     in
     roomLength > 0 && partsLength > 0 && roomLength == partsLength
-
-
-type alias Value =
-    { room : Room, val : Float }
-
-
-type alias Participant =
-    { name : String
-    , price : Maybe Float
-    , assignment : Maybe Room
-    }
-
-
-type alias Room =
-    { title : String }
-
-
-initialModel : Model
-initialModel =
-    { totalRent = Nothing
-    , participants = []
-    , rooms = []
-    , currentOffer = Nothing
-    , values = []
-
-    -- form
-    , formRent = ""
-    , formParticipant = ""
-    , formRoom = ""
-    }
 
 
 
@@ -91,10 +79,9 @@ type Msg
     | DeleteParticipant Participant
     | AddRoom String
     | DeleteRoom Room
-    | SetStartingValues Float
+    | InitAuction
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         NoOp ->
@@ -121,7 +108,7 @@ update msg model =
             let
                 new : Participant
                 new =
-                    { name = nameString, price = Nothing, assignment = Nothing }
+                    { name = nameString }
             in
             ( { model
                 | participants = List.append model.participants [ new ]
@@ -149,53 +136,8 @@ update msg model =
         DeleteRoom room ->
             ( model, Cmd.none )
 
-        SetStartingValues total ->
-            let
-                numRooms =
-                    List.length model.rooms
-            in
-            if numRooms < 1 then
-                ( model, Cmd.none )
-
-            else
-                case model.totalRent of
-                    Nothing ->
-                        ( model, Cmd.none )
-
-                    Just rent ->
-                        ( { model | values = findStartingValues model.rooms rent }, Cmd.none )
-
-
-findStartingValues : List Room -> Float -> List Value
-findStartingValues rooms total =
-    let
-        len =
-            List.length rooms
-
-        evenSplit =
-            total / toFloat len
-    in
-    List.map (\x -> { room = x, val = evenSplit }) rooms
-
-
-allParticipantsHappy : List Participant -> Bool
-allParticipantsHappy people =
-    let
-        unhappy : List Participant
-        unhappy =
-            List.filter (\x -> isAssigned x) people
-    in
-    List.length unhappy == 0
-
-
-isAssigned : Participant -> Bool
-isAssigned person =
-    case person.assignment of
-        Nothing ->
-            False
-
-        _ ->
-            True
+        InitAuction ->
+            ( model, Cmd.none )
 
 
 

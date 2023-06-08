@@ -5173,7 +5173,8 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Main$initialModel = {currentOffer: $elm$core$Maybe$Nothing, formParticipant: '', formRent: '', formRoom: '', participants: _List_Nil, rooms: _List_Nil, totalRent: $elm$core$Maybe$Nothing, values: _List_Nil};
+var $author$project$Auction$emptyAuction = {active: _List_Nil, factor: 1.0, history: _List_Nil, total: 0.0};
+var $author$project$Main$initialModel = {auction: $author$project$Auction$emptyAuction, formParticipant: '', formRent: '', formRoom: '', participants: _List_Nil, rooms: _List_Nil, totalRent: $elm$core$Maybe$Nothing};
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $elm$core$Platform$Sub$batch = _Platform_batch;
@@ -5188,17 +5189,6 @@ var $elm$core$List$append = F2(
 		} else {
 			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
 		}
-	});
-var $author$project$Main$findStartingValues = F2(
-	function (rooms, total) {
-		var len = $elm$core$List$length(rooms);
-		var evenSplit = total / len;
-		return A2(
-			$elm$core$List$map,
-			function (x) {
-				return {room: x, val: evenSplit};
-			},
-			rooms);
 	});
 var $elm$core$String$toFloat = _String_toFloat;
 var $author$project$Main$update = F2(
@@ -5239,7 +5229,7 @@ var $author$project$Main$update = F2(
 					$elm$core$Platform$Cmd$none);
 			case 'AddParticipant':
 				var nameString = msg.a;
-				var _new = {assignment: $elm$core$Maybe$Nothing, name: nameString, price: $elm$core$Maybe$Nothing};
+				var _new = {name: nameString};
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,
@@ -5274,25 +5264,7 @@ var $author$project$Main$update = F2(
 				var room = msg.a;
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 			default:
-				var total = msg.a;
-				var numRooms = $elm$core$List$length(model.rooms);
-				if (numRooms < 1) {
-					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
-				} else {
-					var _v1 = model.totalRent;
-					if (_v1.$ === 'Nothing') {
-						return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
-					} else {
-						var rent = _v1.a;
-						return _Utils_Tuple2(
-							_Utils_update(
-								model,
-								{
-									values: A2($author$project$Main$findStartingValues, model.rooms, rent)
-								}),
-							$elm$core$Platform$Cmd$none);
-					}
-				}
+				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 		}
 	});
 var $elm$html$Html$div = _VirtualDom_node('div');
