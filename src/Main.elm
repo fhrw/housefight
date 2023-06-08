@@ -75,8 +75,11 @@ validateModel model =
 
         partsLength =
             List.length model.participants
+
+        setPrice =
+            model.totalRent /= Nothing
     in
-    roomLength > 0 && partsLength > 0 && roomLength == partsLength
+    roomLength > 0 && partsLength > 0 && roomLength == partsLength && setPrice
 
 
 
@@ -194,12 +197,13 @@ view model =
 
 auctionDashboard : Model -> Html Msg
 auctionDashboard model =
-    div []
-        [ h2 [] [ text "Auction" ]
-        , p [] [ text "Foo, do you accept room Bar for $X?" ]
-        , button [] [ text "Accept" ]
-        , button [] [ text "Deny" ]
-        ]
+    if not (validateModel model) then
+        div []
+            [ p [] [ text "Auction not ready to rumble..." ]
+            ]
+
+    else
+        div [] [ p [] [ text "Auction Ready" ] ]
 
 
 historyLogView : List HistoryItem -> Html Msg

@@ -5471,48 +5471,46 @@ var $author$project$Main$update = F2(
 var $author$project$Main$ReceiveHistory = function (a) {
 	return {$: 'ReceiveHistory', a: a};
 };
-var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$div = _VirtualDom_node('div');
-var $elm$html$Html$h2 = _VirtualDom_node('h2');
+var $elm$core$Basics$not = _Basics_not;
 var $elm$html$Html$p = _VirtualDom_node('p');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $elm$core$Basics$neq = _Utils_notEqual;
+var $author$project$Main$validateModel = function (model) {
+	var setPrice = !_Utils_eq(model.totalRent, $elm$core$Maybe$Nothing);
+	var roomLength = $elm$core$List$length(model.rooms);
+	var partsLength = $elm$core$List$length(model.participants);
+	return (roomLength > 0) && ((partsLength > 0) && (_Utils_eq(roomLength, partsLength) && setPrice));
+};
 var $author$project$Main$auctionDashboard = function (model) {
-	return A2(
+	return (!$author$project$Main$validateModel(model)) ? A2(
 		$elm$html$Html$div,
 		_List_Nil,
 		_List_fromArray(
 			[
 				A2(
-				$elm$html$Html$h2,
+				$elm$html$Html$p,
 				_List_Nil,
 				_List_fromArray(
 					[
-						$elm$html$Html$text('Auction')
-					])),
+						$elm$html$Html$text('Auction not ready to rumble...')
+					]))
+			])) : A2(
+		$elm$html$Html$div,
+		_List_Nil,
+		_List_fromArray(
+			[
 				A2(
 				$elm$html$Html$p,
 				_List_Nil,
 				_List_fromArray(
 					[
-						$elm$html$Html$text('Foo, do you accept room Bar for $X?')
-					])),
-				A2(
-				$elm$html$Html$button,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Accept')
-					])),
-				A2(
-				$elm$html$Html$button,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Deny')
+						$elm$html$Html$text('Auction Ready')
 					]))
 			]));
 };
+var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$h3 = _VirtualDom_node('h3');
 var $author$project$Auction$loggifyHistoryItem = function (item) {
 	if (item.$ === 'Bid') {
