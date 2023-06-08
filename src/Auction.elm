@@ -12,37 +12,35 @@ type alias Auction =
     }
 
 
-type alias BidItem =
-    { bidAmount : Float
+type alias HistoryLogItem =
+    { bidAmount : Maybe Float
     , bidder : Participant
     }
 
 
-type alias FoldItem =
-    { folder : Participant }
-
-
 type HistoryItem
-    = Bid BidItem
-    | Fold FoldItem
+    = Bid Float Participant
+    | Fold Participant
 
 
-emptyAuction : Auction
-emptyAuction =
-    { history = []
-    , total = 0.0
-    , active = []
-    , factor = 1.0
-    }
+loggifyHistoryItem : HistoryItem -> HistoryLogItem
+loggifyHistoryItem item =
+    case item of
+        Bid bid person ->
+            { bidAmount = Just bid, bidder = person }
+
+        Fold person ->
+            { bidAmount = Nothing, bidder = person }
 
 
-initAuction : List Participant -> Float -> Auction
-initAuction people total =
-    { history = []
-    , total = total
-    , active = people
-    , factor = 1.0
-    }
+parseHistoryLogItem : HistoryLogItem -> String
+parseHistoryLogItem item =
+    case item.bidAmount of
+        Nothing ->
+            String.concat [ "{", item.bidder.name, " folded...", "}" ]
+
+        Just amount ->
+            String.concat [ "{", item.bidder.name, " made a bid of ", String.fromFloat amount, "}" ]
 
 
 nextOffer : Auction -> Float
@@ -90,7 +88,7 @@ auctionIsDone auction =
 isBidItem : HistoryItem -> Bool
 isBidItem item =
     case item of
-        Bid _ ->
+        Bid _ _ ->
             True
 
         _ ->

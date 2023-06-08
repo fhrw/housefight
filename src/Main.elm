@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Auction exposing (HistoryItem, emptyAuction, initAuction)
+import Auction exposing (HistoryItem(..), cycleActive, loggifyHistoryItem, parseHistoryLogItem)
 import Browser
 import Html exposing (Html, button, div, h1, h2, h3, input, p, text)
 import Html.Attributes exposing (placeholder, value)
@@ -22,6 +22,11 @@ main =
         }
 
 
+type UiState
+    = ShowInput
+    | Auction
+
+
 type alias Model =
     { totalRent : Maybe Float
     , participants : List Participant
@@ -37,8 +42,7 @@ type alias Model =
     , formRoom : String
 
     -- UI
-    , showAuctionView : Bool
-    , showInputs : Bool
+    , uiState : UiState
     }
 
 
@@ -52,7 +56,7 @@ initialModel =
     , participants = []
     , rooms = []
     , unAllocatedRent = 0.0
-    , bidHistory = []
+    , bidHistory = [ Bid 40.0 { name = "Steve" }, Fold { name = "Gerry" }, Bid 35.0 { name = "Eustace" } ]
     , activeBidders = []
     , factor = 1.0
 
@@ -62,8 +66,7 @@ initialModel =
     , formRoom = ""
 
     -- UI
-    , showAuctionView = True
-    , showInputs = True
+    , uiState = ShowInput
     }
 
 
@@ -151,7 +154,17 @@ update msg model =
             ( model, Cmd.none )
 
         ReceiveHistory item ->
-            ( model, Cmd.none )
+            case item of
+                Bid amount person ->
+                    ( { model
+                        | bidHistory = Bid amount person :: model.bidHistory
+                        , activeBidders = cycleActive model.activeBidders
+                      }
+                    , Cmd.none
+                    )
+
+                Fold _ ->
+                    ( { model | bidHistory = item :: model.bidHistory, activeBidders = List.drop 1 model.activeBidders }, Cmd.none )
 
 
 
@@ -177,28 +190,29 @@ view model =
         , participantViewer model.participants
         , roomListViewer model.rooms
         , auctionDashboard model
+        , historyLogView model.bidHistory
+        , button [ onClick (ReceiveHistory (Bid 500.0 { name = "Nelly" })) ] [ text "test history add" ]
         ]
 
 
 auctionDashboard : Model -> Html Msg
 auctionDashboard model =
-    if model.showAuctionView == False then
-        incompleteSetupDash
-
-    else
-        div []
-            [ h2 [] [ text "Auction" ]
-            , p [] [ text "Foo, do you accept room Bar for $X?" ]
-            , button [] [ text "Accept" ]
-            , button [] [ text "Deny" ]
-            ]
-
-
-incompleteSetupDash : Html Msg
-incompleteSetupDash =
     div []
         [ h2 [] [ text "Auction" ]
-        , p [] [ text "Incomplete setup!" ]
+        , p [] [ text "Foo, do you accept room Bar for $X?" ]
+        , button [] [ text "Accept" ]
+        , button [] [ text "Deny" ]
+        ]
+
+
+historyLogView : List HistoryItem -> Html Msg
+historyLogView history =
+    div []
+        [ h3 []
+            [ text "History" ]
+        , div
+            []
+            (List.map (\x -> p [] [ text (loggifyHistoryItem x |> parseHistoryLogItem) ]) history)
         ]
 
 
