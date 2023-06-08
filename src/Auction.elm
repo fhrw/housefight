@@ -43,20 +43,20 @@ parseHistoryLogItem item =
             String.concat [ "{", item.bidder.name, " made a bid of ", String.fromFloat amount, "}" ]
 
 
-nextOffer : Auction -> Float
-nextOffer currState =
+nextOffer : ( Float, Float ) -> List Participant -> Float
+nextOffer tup people =
     let
         factor =
-            getNextFactor currState.factor (getFactorDirection currState)
+            getNextFactor (Tuple.first tup) (getFactorDirection people)
     in
-    currState.total * factor
+    Tuple.second tup * factor
 
 
-getFactorDirection : Auction -> Bool
-getFactorDirection auction =
+getFactorDirection : List Participant -> Bool
+getFactorDirection active =
     let
         auctionLen =
-            List.length auction.active
+            List.length active
     in
     case auctionLen of
         0 ->

@@ -5173,35 +5173,25 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Auction$Bid = F2(
-	function (a, b) {
-		return {$: 'Bid', a: a, b: b};
-	});
-var $author$project$Auction$Fold = function (a) {
-	return {$: 'Fold', a: a};
-};
 var $author$project$Main$ShowInput = {$: 'ShowInput'};
+var $author$project$Room$Unallocated = {$: 'Unallocated'};
 var $author$project$Main$initialModel = {
 	activeBidders: _List_Nil,
-	bidHistory: _List_fromArray(
-		[
-			A2(
-			$author$project$Auction$Bid,
-			40.0,
-			{name: 'Steve'}),
-			$author$project$Auction$Fold(
-			{name: 'Gerry'}),
-			A2(
-			$author$project$Auction$Bid,
-			35.0,
-			{name: 'Eustace'})
-		]),
+	bidHistory: _List_Nil,
 	factor: 1.0,
 	formParticipant: '',
 	formRent: '',
 	formRoom: '',
-	participants: _List_Nil,
-	rooms: _List_Nil,
+	participants: _List_fromArray(
+		[
+			{name: 'Steve'},
+			{name: 'Emily'}
+		]),
+	rooms: _List_fromArray(
+		[
+			{status: $author$project$Room$Unallocated, title: 'front room'},
+			{status: $author$project$Room$Unallocated, title: 'back room'}
+		]),
 	totalRent: $elm$core$Maybe$Nothing,
 	uiState: $author$project$Main$ShowInput,
 	unAllocatedRent: 0.0
@@ -5213,6 +5203,10 @@ var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $author$project$Main$subscriptions = function (model) {
 	return $elm$core$Platform$Sub$none;
 };
+var $author$project$Auction$Bid = F2(
+	function (a, b) {
+		return {$: 'Bid', a: a, b: b};
+	});
 var $elm$core$List$append = F2(
 	function (xs, ys) {
 		if (!ys.b) {
@@ -5430,7 +5424,7 @@ var $author$project$Main$update = F2(
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 			case 'AddRoom':
 				var newRoomString = msg.a;
-				var newRoom = {title: newRoomString};
+				var newRoom = {status: $author$project$Room$Unallocated, title: newRoomString};
 				return _Utils_Tuple2(
 					_Utils_update(
 						model,

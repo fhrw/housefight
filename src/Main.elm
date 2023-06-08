@@ -6,6 +6,7 @@ import Html exposing (Html, button, div, h1, h2, h3, input, p, text)
 import Html.Attributes exposing (placeholder, value)
 import Html.Events exposing (onClick, onInput)
 import Participant exposing (Participant)
+import Room exposing (..)
 
 
 
@@ -46,17 +47,13 @@ type alias Model =
     }
 
 
-type alias Room =
-    { title : String }
-
-
 initialModel : Model
 initialModel =
     { totalRent = Nothing
-    , participants = []
-    , rooms = []
+    , participants = [ { name = "Steve" }, { name = "Emily" } ]
+    , rooms = [ { title = "front room", status = Unallocated }, { title = "back room", status = Unallocated } ]
     , unAllocatedRent = 0.0
-    , bidHistory = [ Bid 40.0 { name = "Steve" }, Fold { name = "Gerry" }, Bid 35.0 { name = "Eustace" } ]
+    , bidHistory = []
     , activeBidders = []
     , factor = 1.0
 
@@ -141,7 +138,7 @@ update msg model =
             let
                 newRoom : Room
                 newRoom =
-                    { title = newRoomString }
+                    { title = newRoomString, status = Unallocated }
             in
             ( { model
                 | rooms = List.append model.rooms [ newRoom ]
