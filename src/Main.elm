@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Auction exposing (Auction, emptyAuction, initAuction)
+import Auction exposing (HistoryItem, emptyAuction, initAuction)
 import Browser
 import Html exposing (Html, button, div, h1, h2, h3, input, p, text)
 import Html.Attributes exposing (placeholder, value)
@@ -26,12 +26,19 @@ type alias Model =
     { totalRent : Maybe Float
     , participants : List Participant
     , rooms : List Room
-    , auction : Auction
+    , unAllocatedRent : Float
+    , bidHistory : List HistoryItem
+    , activeBidders : List Participant
+    , factor : Float
 
     -- FORM INPUTS
     , formRent : String
     , formParticipant : String
     , formRoom : String
+
+    -- UI
+    , showAuctionView : Bool
+    , showInputs : Bool
     }
 
 
@@ -44,12 +51,19 @@ initialModel =
     { totalRent = Nothing
     , participants = []
     , rooms = []
-    , auction = emptyAuction
+    , unAllocatedRent = 0.0
+    , bidHistory = []
+    , activeBidders = []
+    , factor = 1.0
 
     -- form
     , formRent = ""
     , formParticipant = ""
     , formRoom = ""
+
+    -- UI
+    , showAuctionView = True
+    , showInputs = True
     }
 
 
@@ -79,7 +93,7 @@ type Msg
     | DeleteParticipant Participant
     | AddRoom String
     | DeleteRoom Room
-    | InitAuction
+    | ReceiveHistory HistoryItem
 
 
 update msg model =
@@ -136,7 +150,7 @@ update msg model =
         DeleteRoom room ->
             ( model, Cmd.none )
 
-        InitAuction ->
+        ReceiveHistory item ->
             ( model, Cmd.none )
 
 
@@ -162,6 +176,29 @@ view model =
         , totalPriceView model.totalRent
         , participantViewer model.participants
         , roomListViewer model.rooms
+        , auctionDashboard model
+        ]
+
+
+auctionDashboard : Model -> Html Msg
+auctionDashboard model =
+    if model.showAuctionView == False then
+        incompleteSetupDash
+
+    else
+        div []
+            [ h2 [] [ text "Auction" ]
+            , p [] [ text "Foo, do you accept room Bar for $X?" ]
+            , button [] [ text "Accept" ]
+            , button [] [ text "Deny" ]
+            ]
+
+
+incompleteSetupDash : Html Msg
+incompleteSetupDash =
+    div []
+        [ h2 [] [ text "Auction" ]
+        , p [] [ text "Incomplete setup!" ]
         ]
 
 

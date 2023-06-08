@@ -5173,8 +5173,7 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
-var $author$project$Auction$emptyAuction = {active: _List_Nil, factor: 1.0, history: _List_Nil, total: 0.0};
-var $author$project$Main$initialModel = {auction: $author$project$Auction$emptyAuction, formParticipant: '', formRent: '', formRoom: '', participants: _List_Nil, rooms: _List_Nil, totalRent: $elm$core$Maybe$Nothing};
+var $author$project$Main$initialModel = {activeBidders: _List_Nil, bidHistory: _List_Nil, factor: 1.0, formParticipant: '', formRent: '', formRoom: '', participants: _List_Nil, rooms: _List_Nil, showAuctionView: true, showInputs: true, totalRent: $elm$core$Maybe$Nothing, unAllocatedRent: 0.0};
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
 var $elm$core$Platform$Sub$batch = _Platform_batch;
@@ -5264,17 +5263,78 @@ var $author$project$Main$update = F2(
 				var room = msg.a;
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 			default:
+				var item = msg.a;
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 		}
 	});
+var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$div = _VirtualDom_node('div');
+var $elm$html$Html$h2 = _VirtualDom_node('h2');
+var $elm$html$Html$p = _VirtualDom_node('p');
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $author$project$Main$incompleteSetupDash = A2(
+	$elm$html$Html$div,
+	_List_Nil,
+	_List_fromArray(
+		[
+			A2(
+			$elm$html$Html$h2,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text('Auction')
+				])),
+			A2(
+			$elm$html$Html$p,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text('Incomplete setup!')
+				]))
+		]));
+var $author$project$Main$auctionDashboard = function (model) {
+	return (!model.showAuctionView) ? $author$project$Main$incompleteSetupDash : A2(
+		$elm$html$Html$div,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$h2,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Auction')
+					])),
+				A2(
+				$elm$html$Html$p,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Foo, do you accept room Bar for $X?')
+					])),
+				A2(
+				$elm$html$Html$button,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Accept')
+					])),
+				A2(
+				$elm$html$Html$button,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Deny')
+					]))
+			]));
+};
 var $author$project$Main$AddParticipant = function (a) {
 	return {$: 'AddParticipant', a: a};
 };
 var $author$project$Main$SetFormParticipant = function (a) {
 	return {$: 'SetFormParticipant', a: a};
 };
-var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$input = _VirtualDom_node('input');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
@@ -5335,8 +5395,6 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 			$elm$json$Json$Encode$string(string));
 	});
 var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$Main$participantCreator = function (model) {
 	return A2(
@@ -5366,7 +5424,6 @@ var $author$project$Main$participantCreator = function (model) {
 					]))
 			]));
 };
-var $elm$html$Html$p = _VirtualDom_node('p');
 var $author$project$Main$participantViewer = function (parts) {
 	return A2(
 		$elm$html$Html$div,
@@ -5513,7 +5570,8 @@ var $author$project$Main$view = function (model) {
 				$author$project$Main$roomAdder(model),
 				$author$project$Main$totalPriceView(model.totalRent),
 				$author$project$Main$participantViewer(model.participants),
-				$author$project$Main$roomListViewer(model.rooms)
+				$author$project$Main$roomListViewer(model.rooms),
+				$author$project$Main$auctionDashboard(model)
 			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$element(

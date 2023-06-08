@@ -5,17 +5,26 @@ import Participant exposing (Participant)
 
 
 type alias Auction =
-    { history : List AuctionItem
+    { history : List HistoryItem
     , total : Float
     , active : List Participant
     , factor : Float
     }
 
 
-type alias AuctionItem =
+type alias BidItem =
     { bidAmount : Float
     , bidder : Participant
     }
+
+
+type alias FoldItem =
+    { folder : Participant }
+
+
+type HistoryItem
+    = Bid BidItem
+    | Fold FoldItem
 
 
 emptyAuction : Auction
@@ -66,7 +75,7 @@ auctionIsDone : Auction -> Bool
 auctionIsDone auction =
     let
         highest =
-            getHighest auction.history
+            getHighest (List.filter isBidItem auction.history)
 
         hasWinner =
             List.length auction.active == 1
@@ -76,6 +85,16 @@ auctionIsDone auction =
 
     else
         False
+
+
+isBidItem : HistoryItem -> Bool
+isBidItem item =
+    case item of
+        Bid _ ->
+            True
+
+        _ ->
+            False
 
 
 getNextFactor : Float -> Bool -> Float
@@ -91,7 +110,7 @@ getNextFactor cur dir =
         cur - offset
 
 
-getHighest : List AuctionItem -> Maybe AuctionItem
+getHighest : List HistoryItem -> Maybe HistoryItem
 getHighest auction =
     List.head auction
 
