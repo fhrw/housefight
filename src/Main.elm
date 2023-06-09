@@ -6,6 +6,7 @@ import Html exposing (Html, button, div, h1, h2, h3, input, p, text)
 import Html.Attributes exposing (placeholder, value)
 import Html.Events exposing (onClick, onInput)
 import Participant exposing (Participant)
+import Platform.Cmd as Cmd
 import Room exposing (..)
 
 
@@ -82,6 +83,12 @@ validateModel model =
     roomLength > 0 && partsLength > 0 && roomLength == partsLength && setPrice
 
 
+findToAuction : List Room -> Maybe Room
+findToAuction rooms =
+    List.filter (\x -> x.status == Unallocated) rooms
+        |> List.head
+
+
 
 -- UPDATE
 
@@ -96,6 +103,7 @@ type Msg
     | DeleteParticipant Participant
     | AddRoom String
     | DeleteRoom Room
+    | StartAuction
     | ReceiveHistory HistoryItem
 
 
@@ -153,6 +161,21 @@ update msg model =
         DeleteRoom room ->
             ( model, Cmd.none )
 
+        StartAuction ->
+            case model.totalRent of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just rent ->
+                    ( { model
+                        | uiState = Auction
+                        , activeBidders = model.participants
+                        , unAllocatedRent = rent
+                        , factor = 1.0
+                      }
+                    , Cmd.none
+                    )
+
         ReceiveHistory item ->
             case item of
                 Bid amount person ->
@@ -186,9 +209,6 @@ view model =
         [ rentSetter model
         , participantCreator model
         , roomAdder model
-        , totalPriceView model.totalRent
-        , participantViewer model.participants
-        , roomListViewer model.rooms
         , auctionDashboard model
         , historyLogView model.bidHistory
         , button [ onClick (ReceiveHistory (Bid 500.0 { name = "Nelly" })) ] [ text "test history add" ]
@@ -202,8 +222,21 @@ auctionDashboard model =
             [ p [] [ text "Auction not ready to rumble..." ]
             ]
 
+    else if model.uiState /= Auction then
+        div []
+            [ p [] [ text "Auction Ready" ]
+            , button [ onClick StartAuction ] [ text "Start" ]
+            ]
+
     else
-        div [] [ p [] [ text "Auction Ready" ] ]
+        runningAuction model
+
+
+runningAuction : Model -> Html Msg
+runningAuction state =
+    div []
+        [ p [] [ text "running the auction" ]
+        ]
 
 
 historyLogView : List HistoryItem -> Html Msg

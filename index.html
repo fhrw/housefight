@@ -5203,6 +5203,7 @@ var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $author$project$Main$subscriptions = function (model) {
 	return $elm$core$Platform$Sub$none;
 };
+var $author$project$Main$Auction = {$: 'Auction'};
 var $author$project$Auction$Bid = F2(
 	function (a, b) {
 		return {$: 'Bid', a: a, b: b};
@@ -5440,6 +5441,18 @@ var $author$project$Main$update = F2(
 			case 'DeleteRoom':
 				var room = msg.a;
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+			case 'StartAuction':
+				var _v1 = model.totalRent;
+				if (_v1.$ === 'Nothing') {
+					return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
+				} else {
+					var rent = _v1.a;
+					return _Utils_Tuple2(
+						_Utils_update(
+							model,
+							{activeBidders: model.participants, factor: 1.0, uiState: $author$project$Main$Auction, unAllocatedRent: rent}),
+						$elm$core$Platform$Cmd$none);
+				}
 			default:
 				var item = msg.a;
 				if (item.$ === 'Bid') {
@@ -5471,12 +5484,31 @@ var $author$project$Main$update = F2(
 var $author$project$Main$ReceiveHistory = function (a) {
 	return {$: 'ReceiveHistory', a: a};
 };
+var $author$project$Main$StartAuction = {$: 'StartAuction'};
+var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$div = _VirtualDom_node('div');
+var $elm$core$Basics$neq = _Utils_notEqual;
 var $elm$core$Basics$not = _Basics_not;
+var $elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var $elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'click',
+		$elm$json$Json$Decode$succeed(msg));
+};
 var $elm$html$Html$p = _VirtualDom_node('p');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $elm$core$Basics$neq = _Utils_notEqual;
 var $author$project$Main$validateModel = function (model) {
 	var setPrice = !_Utils_eq(model.totalRent, $elm$core$Maybe$Nothing);
 	var roomLength = $elm$core$List$length(model.rooms);
@@ -5496,7 +5528,7 @@ var $author$project$Main$auctionDashboard = function (model) {
 					[
 						$elm$html$Html$text('Auction not ready to rumble...')
 					]))
-			])) : A2(
+			])) : ((!_Utils_eq(model.uiState, $author$project$Main$Auction)) ? A2(
 		$elm$html$Html$div,
 		_List_Nil,
 		_List_fromArray(
@@ -5507,10 +5539,31 @@ var $author$project$Main$auctionDashboard = function (model) {
 				_List_fromArray(
 					[
 						$elm$html$Html$text('Auction Ready')
+					])),
+				A2(
+				$elm$html$Html$button,
+				_List_fromArray(
+					[
+						$elm$html$Html$Events$onClick($author$project$Main$StartAuction)
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Start')
 					]))
-			]));
+			])) : A2(
+		$elm$html$Html$div,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$p,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('running the auction')
+					]))
+			])));
 };
-var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$h3 = _VirtualDom_node('h3');
 var $author$project$Auction$loggifyHistoryItem = function (item) {
 	if (item.$ === 'Bid') {
@@ -5579,23 +5632,6 @@ var $author$project$Main$historyLogView = function (history) {
 					},
 					history))
 			]));
-};
-var $elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
-};
-var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var $elm$html$Html$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			$elm$virtual_dom$VirtualDom$on,
-			event,
-			$elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
-var $elm$html$Html$Events$onClick = function (msg) {
-	return A2(
-		$elm$html$Html$Events$on,
-		'click',
-		$elm$json$Json$Decode$succeed(msg));
 };
 var $author$project$Main$AddParticipant = function (a) {
 	return {$: 'AddParticipant', a: a};
@@ -5675,23 +5711,6 @@ var $author$project$Main$participantCreator = function (model) {
 					]))
 			]));
 };
-var $author$project$Main$participantViewer = function (parts) {
-	return A2(
-		$elm$html$Html$div,
-		_List_Nil,
-		A2(
-			$elm$core$List$map,
-			function (element) {
-				return A2(
-					$elm$html$Html$p,
-					_List_Nil,
-					_List_fromArray(
-						[
-							$elm$html$Html$text(element.name)
-						]));
-			},
-			parts));
-};
 var $author$project$Main$SetFormRent = function (a) {
 	return {$: 'SetFormRent', a: a};
 };
@@ -5760,54 +5779,6 @@ var $author$project$Main$roomAdder = function (model) {
 					]))
 			]));
 };
-var $author$project$Main$roomListViewer = function (rooms) {
-	return A2(
-		$elm$html$Html$div,
-		_List_Nil,
-		A2(
-			$elm$core$List$map,
-			function (room) {
-				return A2(
-					$elm$html$Html$p,
-					_List_Nil,
-					_List_fromArray(
-						[
-							$elm$html$Html$text(room.title)
-						]));
-			},
-			rooms));
-};
-var $author$project$Main$totalPriceToString = function (mFloat) {
-	if (mFloat.$ === 'Nothing') {
-		return '';
-	} else {
-		var price = mFloat.a;
-		return $elm$core$String$fromFloat(price);
-	}
-};
-var $author$project$Main$totalPriceView = function (price) {
-	return A2(
-		$elm$html$Html$div,
-		_List_Nil,
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$h3,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Total Price')
-					])),
-				A2(
-				$elm$html$Html$p,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text(
-						$author$project$Main$totalPriceToString(price))
-					]))
-			]));
-};
 var $author$project$Main$view = function (model) {
 	return A2(
 		$elm$html$Html$div,
@@ -5817,9 +5788,6 @@ var $author$project$Main$view = function (model) {
 				$author$project$Main$rentSetter(model),
 				$author$project$Main$participantCreator(model),
 				$author$project$Main$roomAdder(model),
-				$author$project$Main$totalPriceView(model.totalRent),
-				$author$project$Main$participantViewer(model.participants),
-				$author$project$Main$roomListViewer(model.rooms),
 				$author$project$Main$auctionDashboard(model),
 				$author$project$Main$historyLogView(model.bidHistory),
 				A2(
