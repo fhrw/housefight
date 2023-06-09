@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Auction exposing (HistoryItem(..), cycleActive, loggifyHistoryItem, parseHistoryLogItem)
+import Auction exposing (HistoryItem(..), cycleActive, loggifyHistoryItem, nextOffer, parseHistoryLogItem)
 import Browser
 import Html exposing (Html, button, div, h1, h2, h3, input, p, text)
 import Html.Attributes exposing (placeholder, value)
@@ -31,9 +31,9 @@ type UiState
 
 type alias Model =
     { totalRent : Maybe Float
+    , unAllocatedRent : Float
     , participants : List Participant
     , rooms : List Room
-    , unAllocatedRent : Float
     , bidHistory : List HistoryItem
     , activeBidders : List Participant
     , factor : Float
@@ -50,9 +50,9 @@ type alias Model =
 
 initialModel : Model
 initialModel =
-    { totalRent = Nothing
+    { totalRent = Just 450.0
     , participants = [ { name = "Steve" }, { name = "Emily" } ]
-    , rooms = [ { title = "front room", status = Unallocated }, { title = "back room", status = Unallocated } ]
+    , rooms = [ { title = "front room", status = Allocated { name = "Steve" } }, { title = "back room", status = Unallocated } ]
     , unAllocatedRent = 0.0
     , bidHistory = []
     , activeBidders = []
@@ -83,12 +83,6 @@ validateModel model =
     roomLength > 0 && partsLength > 0 && roomLength == partsLength && setPrice
 
 
-findToAuction : List Room -> Maybe Room
-findToAuction rooms =
-    List.filter (\x -> x.status == Unallocated) rooms
-        |> List.head
-
-
 
 -- UPDATE
 
@@ -107,6 +101,7 @@ type Msg
     | ReceiveHistory HistoryItem
 
 
+update : Msg -> Model -> ( Model, Cmd msg )
 update msg model =
     case msg of
         NoOp ->
@@ -190,6 +185,12 @@ update msg model =
                     ( { model | bidHistory = item :: model.bidHistory, activeBidders = List.drop 1 model.activeBidders }, Cmd.none )
 
 
+findToAuction : List Room -> Maybe Room
+findToAuction rooms =
+    List.filter (\x -> x.status == Unallocated) rooms
+        |> List.head
+
+
 
 -- SUBSCRIPTIONS
 
@@ -222,21 +223,38 @@ auctionDashboard model =
             [ p [] [ text "Auction not ready to rumble..." ]
             ]
 
-    else if model.uiState /= Auction then
-        div []
-            [ p [] [ text "Auction Ready" ]
-            , button [ onClick StartAuction ] [ text "Start" ]
-            ]
-
     else
-        runningAuction model
+        case model.uiState of
+            ShowInput ->
+                div []
+                    [ p [] [ text "Auction Ready" ]
+                    , button [ onClick StartAuction ] [ text "Start" ]
+                    ]
+
+            Auction ->
+                let
+                    currRoom =
+                        findToAuction model.rooms
+
+                    currPerson =
+                        List.head model.activeBidders
+
+                    offer =
+                        nextOffer ( model.factor, model.unAllocatedRent ) model.activeBidders
+                in
+                div [] []
 
 
-runningAuction : Model -> Html Msg
-runningAuction state =
+showCurrentOffer : Room -> Float -> Participant -> Html Msg
+showCurrentOffer room price person =
     div []
-        [ p [] [ text "running the auction" ]
+        [ p [] [ text (person.name ++ " would you like to bid " ++ String.fromFloat price ++ " for " ++ roomToString room) ]
         ]
+
+
+roomToString : Room -> String
+roomToString room =
+    room.title
 
 
 historyLogView : List HistoryItem -> Html Msg

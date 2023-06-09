@@ -5173,6 +5173,9 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
+var $author$project$Room$Allocated = function (a) {
+	return {$: 'Allocated', a: a};
+};
 var $author$project$Main$ShowInput = {$: 'ShowInput'};
 var $author$project$Room$Unallocated = {$: 'Unallocated'};
 var $author$project$Main$initialModel = {
@@ -5189,10 +5192,14 @@ var $author$project$Main$initialModel = {
 		]),
 	rooms: _List_fromArray(
 		[
-			{status: $author$project$Room$Unallocated, title: 'front room'},
+			{
+			status: $author$project$Room$Allocated(
+				{name: 'Steve'}),
+			title: 'front room'
+		},
 			{status: $author$project$Room$Unallocated, title: 'back room'}
 		]),
-	totalRent: $elm$core$Maybe$Nothing,
+	totalRent: $elm$core$Maybe$Just(450.0),
 	uiState: $author$project$Main$ShowInput,
 	unAllocatedRent: 0.0
 };
@@ -5487,7 +5494,63 @@ var $author$project$Main$ReceiveHistory = function (a) {
 var $author$project$Main$StartAuction = {$: 'StartAuction'};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$div = _VirtualDom_node('div');
-var $elm$core$Basics$neq = _Utils_notEqual;
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$Main$findToAuction = function (rooms) {
+	return $elm$core$List$head(
+		A2(
+			$elm$core$List$filter,
+			function (x) {
+				return _Utils_eq(x.status, $author$project$Room$Unallocated);
+			},
+			rooms));
+};
+var $author$project$Auction$getFactorDirection = function (active) {
+	var auctionLen = $elm$core$List$length(active);
+	switch (auctionLen) {
+		case 0:
+			return false;
+		case 1:
+			return false;
+		default:
+			return true;
+	}
+};
+var $author$project$Auction$getNextFactor = F2(
+	function (cur, dir) {
+		var offset = cur / 2;
+		return dir ? (cur + offset) : (cur - offset);
+	});
+var $elm$core$Tuple$second = function (_v0) {
+	var y = _v0.b;
+	return y;
+};
+var $author$project$Auction$nextOffer = F2(
+	function (tup, people) {
+		var factor = A2(
+			$author$project$Auction$getNextFactor,
+			tup.a,
+			$author$project$Auction$getFactorDirection(people));
+		return tup.b * factor;
+	});
 var $elm$core$Basics$not = _Basics_not;
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
@@ -5509,6 +5572,7 @@ var $elm$html$Html$Events$onClick = function (msg) {
 var $elm$html$Html$p = _VirtualDom_node('p');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $elm$core$Basics$neq = _Utils_notEqual;
 var $author$project$Main$validateModel = function (model) {
 	var setPrice = !_Utils_eq(model.totalRent, $elm$core$Maybe$Nothing);
 	var roomLength = $elm$core$List$length(model.rooms);
@@ -5516,53 +5580,56 @@ var $author$project$Main$validateModel = function (model) {
 	return (roomLength > 0) && ((partsLength > 0) && (_Utils_eq(roomLength, partsLength) && setPrice));
 };
 var $author$project$Main$auctionDashboard = function (model) {
-	return (!$author$project$Main$validateModel(model)) ? A2(
-		$elm$html$Html$div,
-		_List_Nil,
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$p,
+	if (!$author$project$Main$validateModel(model)) {
+		return A2(
+			$elm$html$Html$div,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$p,
+					_List_Nil,
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Auction not ready to rumble...')
+						]))
+				]));
+	} else {
+		var _v0 = model.uiState;
+		if (_v0.$ === 'ShowInput') {
+			return A2(
+				$elm$html$Html$div,
 				_List_Nil,
 				_List_fromArray(
 					[
-						$elm$html$Html$text('Auction not ready to rumble...')
-					]))
-			])) : ((!_Utils_eq(model.uiState, $author$project$Main$Auction)) ? A2(
-		$elm$html$Html$div,
-		_List_Nil,
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$p,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Auction Ready')
-					])),
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Events$onClick($author$project$Main$StartAuction)
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Start')
-					]))
-			])) : A2(
-		$elm$html$Html$div,
-		_List_Nil,
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$p,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text('running the auction')
-					]))
-			])));
+						A2(
+						$elm$html$Html$p,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Auction Ready')
+							])),
+						A2(
+						$elm$html$Html$button,
+						_List_fromArray(
+							[
+								$elm$html$Html$Events$onClick($author$project$Main$StartAuction)
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Start')
+							]))
+					]));
+		} else {
+			var offer = A2(
+				$author$project$Auction$nextOffer,
+				_Utils_Tuple2(model.factor, model.unAllocatedRent),
+				model.activeBidders);
+			var currRoom = $author$project$Main$findToAuction(model.rooms);
+			var currPerson = $elm$core$List$head(model.activeBidders);
+			return A2($elm$html$Html$div, _List_Nil, _List_Nil);
+		}
+	}
 };
 var $elm$html$Html$h3 = _VirtualDom_node('h3');
 var $author$project$Auction$loggifyHistoryItem = function (item) {
