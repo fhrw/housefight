@@ -24,16 +24,14 @@ main =
         }
 
 
-type UiState
-    = ShowInput
-    | Auction
-
-
 type alias Model =
     { totalRent : Maybe Float
     , participants : List Participant
     , rooms : List Room
     , bidHistory : List HistoryItem
+
+    -- AUCTION
+    , remainderRent : Float
     , factor : Float
 
     -- FORM INPUTS
@@ -50,17 +48,35 @@ initialModel : Model
 initialModel =
     { totalRent = Just 400
     , participants = [ { name = "Steve" }, { name = "Emily" } ]
-    , rooms = [ { title = "front room", status = Allocated { name = "Steve" } }, { title = "back room", status = Unallocated } ]
-    , bidHistory = [ Bid 450.0 { name = "Steve" } ]
+    , rooms =
+        [ { title = "front room", status = Allocated { name = "Steve" } }
+        , { title = "back room", status = Unallocated }
+        ]
+    , bidHistory = []
+
+    -- AUCTION
+    , remainderRent = 0 --unset
     , factor = 1.0
 
-    -- form
+    -- FORM
     , formRent = ""
     , formParticipant = ""
     , formRoom = ""
 
     -- UI
     , uiState = ShowInput
+    }
+
+
+type UiState
+    = ShowInput
+    | Auction
+
+
+type alias Offer =
+    { person : Participant
+    , amount : Float
+    , room : Room
     }
 
 
@@ -165,16 +181,7 @@ update msg model =
                     )
 
         ReceiveHistory item ->
-            case item of
-                Bid amount person ->
-                    ( { model
-                        | bidHistory = Bid amount person :: model.bidHistory
-                      }
-                    , Cmd.none
-                    )
-
-                Fold _ ->
-                    ( { model | bidHistory = item :: model.bidHistory }, Cmd.none )
+            ( { model | bidHistory = item :: model.bidHistory }, Cmd.none )
 
 
 findToAuction : List Room -> Maybe Room
@@ -209,17 +216,17 @@ view model =
 
         Auction ->
             div []
-                [ p [] [ text "x for room x" ]
-                , button [] [ text "accept" ]
-                , button [] [ text "decline" ]
+                [ showCurrentOffer { person = { name = "Steve" }, amount = 450.0, room = { title = "front room", status = Unallocated } }
+                , button [ onClick (ReceiveHistory (Bid { amount = 450, bidder = { name = "Steve" } })) ] [ text "accept" ]
+                , button [ onClick (ReceiveHistory (Fold { name = "Steve" })) ] [ text "decline" ]
                 , historyLogView model.bidHistory
                 ]
 
 
-showCurrentOffer : Room -> Float -> Participant -> Html Msg
-showCurrentOffer room price person =
+showCurrentOffer : Offer -> Html Msg
+showCurrentOffer offer =
     div []
-        [ p [] [ text (person.name ++ " would you like to bid " ++ String.fromFloat price ++ " for " ++ roomToString room) ]
+        [ p [] [ text (offer.person.name ++ " would you like to bid " ++ String.fromFloat offer.amount ++ " for " ++ roomToString offer.room) ]
         ]
 
 

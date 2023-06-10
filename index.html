@@ -5176,20 +5176,10 @@ var $elm$browser$Browser$element = _Browser_element;
 var $author$project$Room$Allocated = function (a) {
 	return {$: 'Allocated', a: a};
 };
-var $author$project$Auction$Bid = F2(
-	function (a, b) {
-		return {$: 'Bid', a: a, b: b};
-	});
 var $author$project$Main$ShowInput = {$: 'ShowInput'};
 var $author$project$Room$Unallocated = {$: 'Unallocated'};
 var $author$project$Main$initialModel = {
-	bidHistory: _List_fromArray(
-		[
-			A2(
-			$author$project$Auction$Bid,
-			450.0,
-			{name: 'Steve'})
-		]),
+	bidHistory: _List_Nil,
 	factor: 1.0,
 	formParticipant: '',
 	formRent: '',
@@ -5199,6 +5189,7 @@ var $author$project$Main$initialModel = {
 			{name: 'Steve'},
 			{name: 'Emily'}
 		]),
+	remainderRent: 0,
 	rooms: _List_fromArray(
 		[
 			{
@@ -5314,41 +5305,34 @@ var $author$project$Main$update = F2(
 				}
 			default:
 				var item = msg.a;
-				if (item.$ === 'Bid') {
-					var amount = item.a;
-					var person = item.b;
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								bidHistory: A2(
-									$elm$core$List$cons,
-									A2($author$project$Auction$Bid, amount, person),
-									model.bidHistory)
-							}),
-						$elm$core$Platform$Cmd$none);
-				} else {
-					return _Utils_Tuple2(
-						_Utils_update(
-							model,
-							{
-								bidHistory: A2($elm$core$List$cons, item, model.bidHistory)
-							}),
-						$elm$core$Platform$Cmd$none);
-				}
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							bidHistory: A2($elm$core$List$cons, item, model.bidHistory)
+						}),
+					$elm$core$Platform$Cmd$none);
 		}
 	});
+var $author$project$Auction$Bid = function (a) {
+	return {$: 'Bid', a: a};
+};
+var $author$project$Auction$Fold = function (a) {
+	return {$: 'Fold', a: a};
+};
+var $author$project$Main$ReceiveHistory = function (a) {
+	return {$: 'ReceiveHistory', a: a};
+};
 var $author$project$Main$StartAuction = {$: 'StartAuction'};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$h3 = _VirtualDom_node('h3');
 var $author$project$Auction$loggifyHistoryItem = function (item) {
 	if (item.$ === 'Bid') {
-		var bid = item.a;
-		var person = item.b;
+		var options = item.a;
 		return {
-			bidAmount: $elm$core$Maybe$Just(bid),
-			bidder: person
+			bidAmount: $elm$core$Maybe$Just(options.amount),
+			bidder: options.bidder
 		};
 	} else {
 		var person = item.a;
@@ -5576,6 +5560,25 @@ var $author$project$Main$roomAdder = function (model) {
 					]))
 			]));
 };
+var $author$project$Main$roomToString = function (room) {
+	return room.title;
+};
+var $author$project$Main$showCurrentOffer = function (offer) {
+	return A2(
+		$elm$html$Html$div,
+		_List_Nil,
+		_List_fromArray(
+			[
+				A2(
+				$elm$html$Html$p,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						offer.person.name + (' would you like to bid ' + ($elm$core$String$fromFloat(offer.amount) + (' for ' + $author$project$Main$roomToString(offer.room)))))
+					]))
+			]));
+};
 var $author$project$Main$view = function (model) {
 	var _v0 = model.uiState;
 	if (_v0.$ === 'ShowInput') {
@@ -5604,23 +5607,37 @@ var $author$project$Main$view = function (model) {
 			_List_Nil,
 			_List_fromArray(
 				[
-					A2(
-					$elm$html$Html$p,
-					_List_Nil,
-					_List_fromArray(
-						[
-							$elm$html$Html$text('x for room x')
-						])),
+					$author$project$Main$showCurrentOffer(
+					{
+						amount: 450.0,
+						person: {name: 'Steve'},
+						room: {status: $author$project$Room$Unallocated, title: 'front room'}
+					}),
 					A2(
 					$elm$html$Html$button,
-					_List_Nil,
+					_List_fromArray(
+						[
+							$elm$html$Html$Events$onClick(
+							$author$project$Main$ReceiveHistory(
+								$author$project$Auction$Bid(
+									{
+										amount: 450,
+										bidder: {name: 'Steve'}
+									})))
+						]),
 					_List_fromArray(
 						[
 							$elm$html$Html$text('accept')
 						])),
 					A2(
 					$elm$html$Html$button,
-					_List_Nil,
+					_List_fromArray(
+						[
+							$elm$html$Html$Events$onClick(
+							$author$project$Main$ReceiveHistory(
+								$author$project$Auction$Fold(
+									{name: 'Steve'})))
+						]),
 					_List_fromArray(
 						[
 							$elm$html$Html$text('decline')

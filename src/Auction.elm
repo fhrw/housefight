@@ -10,8 +10,14 @@ type alias HistoryLogItem =
 
 
 type HistoryItem
-    = Bid Float Participant
+    = Bid BidOptions
     | Fold Participant
+
+
+type alias BidOptions =
+    { amount : Float
+    , bidder : Participant
+    }
 
 
 calcOverspray : Float -> Float -> Float
@@ -52,8 +58,8 @@ onlyBids hist =
 loggifyHistoryItem : HistoryItem -> HistoryLogItem
 loggifyHistoryItem item =
     case item of
-        Bid bid person ->
-            { bidAmount = Just bid, bidder = person }
+        Bid options ->
+            { bidAmount = Just options.amount, bidder = options.bidder }
 
         Fold person ->
             { bidAmount = Nothing, bidder = person }
@@ -72,7 +78,7 @@ parseHistoryLogItem item =
 isBidItem : HistoryItem -> Bool
 isBidItem item =
     case item of
-        Bid _ _ ->
+        Bid _ ->
             True
 
         _ ->
