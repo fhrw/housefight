@@ -1,6 +1,3 @@
-## Step 1
+calculate the current offer
 
-- Are all participants happy?
-  - Yes
-    - Done!
-  - No
+- this is the rent \* current factor

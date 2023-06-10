@@ -1,6 +1,6 @@
 module Main exposing (main)
 
-import Auction exposing (HistoryItem(..), cycleActive, loggifyHistoryItem, nextOffer, parseHistoryLogItem)
+import Auction exposing (HistoryItem(..), loggifyHistoryItem, parseHistoryLogItem)
 import Browser
 import Html exposing (Html, button, div, h1, h2, h3, input, p, text)
 import Html.Attributes exposing (placeholder, value)
@@ -31,11 +31,9 @@ type UiState
 
 type alias Model =
     { totalRent : Maybe Float
-    , unAllocatedRent : Float
     , participants : List Participant
     , rooms : List Room
     , bidHistory : List HistoryItem
-    , activeBidders : List Participant
     , factor : Float
 
     -- FORM INPUTS
@@ -50,12 +48,10 @@ type alias Model =
 
 initialModel : Model
 initialModel =
-    { totalRent = Just 450.0
+    { totalRent = Just 400
     , participants = [ { name = "Steve" }, { name = "Emily" } ]
     , rooms = [ { title = "front room", status = Allocated { name = "Steve" } }, { title = "back room", status = Unallocated } ]
-    , unAllocatedRent = 0.0
-    , bidHistory = []
-    , activeBidders = []
+    , bidHistory = [ Bid 450.0 { name = "Steve" } ]
     , factor = 1.0
 
     -- form
@@ -164,9 +160,6 @@ update msg model =
                 Just rent ->
                     ( { model
                         | uiState = Auction
-                        , activeBidders = model.participants
-                        , unAllocatedRent = rent
-                        , factor = 1.0
                       }
                     , Cmd.none
                     )
@@ -176,13 +169,12 @@ update msg model =
                 Bid amount person ->
                     ( { model
                         | bidHistory = Bid amount person :: model.bidHistory
-                        , activeBidders = cycleActive model.activeBidders
                       }
                     , Cmd.none
                     )
 
                 Fold _ ->
-                    ( { model | bidHistory = item :: model.bidHistory, activeBidders = List.drop 1 model.activeBidders }, Cmd.none )
+                    ( { model | bidHistory = item :: model.bidHistory }, Cmd.none )
 
 
 findToAuction : List Room -> Maybe Room
@@ -206,43 +198,22 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ rentSetter model
-        , participantCreator model
-        , roomAdder model
-        , auctionDashboard model
-        , historyLogView model.bidHistory
-        , button [ onClick (ReceiveHistory (Bid 500.0 { name = "Nelly" })) ] [ text "test history add" ]
-        ]
+    case model.uiState of
+        ShowInput ->
+            div []
+                [ rentSetter model
+                , participantCreator model
+                , roomAdder model
+                , button [ onClick StartAuction ] [ text "Start" ]
+                ]
 
-
-auctionDashboard : Model -> Html Msg
-auctionDashboard model =
-    if not (validateModel model) then
-        div []
-            [ p [] [ text "Auction not ready to rumble..." ]
-            ]
-
-    else
-        case model.uiState of
-            ShowInput ->
-                div []
-                    [ p [] [ text "Auction Ready" ]
-                    , button [ onClick StartAuction ] [ text "Start" ]
-                    ]
-
-            Auction ->
-                let
-                    currRoom =
-                        findToAuction model.rooms
-
-                    currPerson =
-                        List.head model.activeBidders
-
-                    offer =
-                        nextOffer ( model.factor, model.unAllocatedRent ) model.activeBidders
-                in
-                div [] []
+        Auction ->
+            div []
+                [ p [] [ text "x for room x" ]
+                , button [] [ text "accept" ]
+                , button [] [ text "decline" ]
+                , historyLogView model.bidHistory
+                ]
 
 
 showCurrentOffer : Room -> Float -> Participant -> Html Msg
@@ -272,21 +243,10 @@ totalPriceToString : Maybe Float -> String
 totalPriceToString mFloat =
     case mFloat of
         Nothing ->
-            ""
+            "Price not set"
 
         Just price ->
             String.fromFloat price
-
-
-totalPriceView : Maybe Float -> Html Msg
-totalPriceView price =
-    div []
-        [ h3 []
-            [ text "Total Price" ]
-        , p
-            []
-            [ text (totalPriceToString price) ]
-        ]
 
 
 roomAdder : Model -> Html Msg
@@ -295,12 +255,6 @@ roomAdder model =
         [ input [ onInput SetFormRoom, placeholder "Create a new room", value model.formRoom ] []
         , button [ onClick (AddRoom model.formRoom) ] [ text "Add Room" ]
         ]
-
-
-roomListViewer : List Room -> Html Msg
-roomListViewer rooms =
-    div []
-        (List.map (\room -> p [] [ text room.title ]) rooms)
 
 
 rentSetter : Model -> Html Msg
@@ -317,12 +271,3 @@ participantCreator model =
         [ input [ placeholder "Enter Participant", value model.formParticipant, onInput SetFormParticipant ] []
         , button [ onClick (AddParticipant model.formParticipant) ] [ text "Add" ]
         ]
-
-
-participantViewer : List Participant -> Html Msg
-participantViewer parts =
-    div []
-        (List.map
-            (\element -> p [] [ text element.name ])
-            parts
-        )

@@ -1,15 +1,6 @@
 module Auction exposing (..)
 
-import List exposing (drop, take)
 import Participant exposing (Participant)
-
-
-type alias Auction =
-    { history : List HistoryItem
-    , total : Float
-    , active : List Participant
-    , factor : Float
-    }
 
 
 type alias HistoryLogItem =
@@ -21,6 +12,41 @@ type alias HistoryLogItem =
 type HistoryItem
     = Bid Float Participant
     | Fold Participant
+
+
+calcOverspray : Float -> Float -> Float
+calcOverspray bid total =
+    let
+        remainder =
+            bid - total
+    in
+    if remainder < 0 then
+        0
+
+    else
+        remainder
+
+
+hasWinner : List HistoryItem -> Bool
+hasWinner hist =
+    let
+        bids =
+            onlyBids hist
+
+        topBid =
+            List.head bids
+    in
+    case topBid of
+        Nothing ->
+            False
+
+        _ ->
+            True
+
+
+onlyBids : List HistoryItem -> List HistoryItem
+onlyBids hist =
+    List.filter isBidItem hist
 
 
 loggifyHistoryItem : HistoryItem -> HistoryLogItem
@@ -43,48 +69,6 @@ parseHistoryLogItem item =
             String.concat [ "{", item.bidder.name, " made a bid of ", String.fromFloat amount, "}" ]
 
 
-nextOffer : ( Float, Float ) -> List Participant -> Float
-nextOffer tup people =
-    let
-        factor =
-            getNextFactor (Tuple.first tup) (getFactorDirection people)
-    in
-    Tuple.second tup * factor
-
-
-getFactorDirection : List Participant -> Bool
-getFactorDirection active =
-    let
-        auctionLen =
-            List.length active
-    in
-    case auctionLen of
-        0 ->
-            False
-
-        1 ->
-            False
-
-        _ ->
-            True
-
-
-auctionIsDone : Auction -> Bool
-auctionIsDone auction =
-    let
-        highest =
-            getHighest (List.filter isBidItem auction.history)
-
-        hasWinner =
-            List.length auction.active == 1
-    in
-    if highest /= Nothing && hasWinner then
-        True
-
-    else
-        False
-
-
 isBidItem : HistoryItem -> Bool
 isBidItem item =
     case item of
@@ -101,7 +85,10 @@ getNextFactor cur dir =
         offset =
             cur / 2
     in
-    if dir then
+    if cur == 1.0 then
+        cur
+
+    else if dir then
         cur + offset
 
     else
@@ -111,15 +98,3 @@ getNextFactor cur dir =
 getHighest : List HistoryItem -> Maybe HistoryItem
 getHighest auction =
     List.head auction
-
-
-cycleActive : List Participant -> List Participant
-cycleActive active =
-    let
-        newBack =
-            take 1 active
-
-        rest =
-            drop 1 active
-    in
-    rest ++ newBack

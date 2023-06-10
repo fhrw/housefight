@@ -5176,11 +5176,20 @@ var $elm$browser$Browser$element = _Browser_element;
 var $author$project$Room$Allocated = function (a) {
 	return {$: 'Allocated', a: a};
 };
+var $author$project$Auction$Bid = F2(
+	function (a, b) {
+		return {$: 'Bid', a: a, b: b};
+	});
 var $author$project$Main$ShowInput = {$: 'ShowInput'};
 var $author$project$Room$Unallocated = {$: 'Unallocated'};
 var $author$project$Main$initialModel = {
-	activeBidders: _List_Nil,
-	bidHistory: _List_Nil,
+	bidHistory: _List_fromArray(
+		[
+			A2(
+			$author$project$Auction$Bid,
+			450.0,
+			{name: 'Steve'})
+		]),
 	factor: 1.0,
 	formParticipant: '',
 	formRent: '',
@@ -5199,9 +5208,8 @@ var $author$project$Main$initialModel = {
 		},
 			{status: $author$project$Room$Unallocated, title: 'back room'}
 		]),
-	totalRent: $elm$core$Maybe$Just(450.0),
-	uiState: $author$project$Main$ShowInput,
-	unAllocatedRent: 0.0
+	totalRent: $elm$core$Maybe$Just(400),
+	uiState: $author$project$Main$ShowInput
 };
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
@@ -5211,10 +5219,6 @@ var $author$project$Main$subscriptions = function (model) {
 	return $elm$core$Platform$Sub$none;
 };
 var $author$project$Main$Auction = {$: 'Auction'};
-var $author$project$Auction$Bid = F2(
-	function (a, b) {
-		return {$: 'Bid', a: a, b: b};
-	});
 var $elm$core$List$append = F2(
 	function (xs, ys) {
 		if (!ys.b) {
@@ -5223,158 +5227,6 @@ var $elm$core$List$append = F2(
 			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
 		}
 	});
-var $elm$core$List$drop = F2(
-	function (n, list) {
-		drop:
-		while (true) {
-			if (n <= 0) {
-				return list;
-			} else {
-				if (!list.b) {
-					return list;
-				} else {
-					var x = list.a;
-					var xs = list.b;
-					var $temp$n = n - 1,
-						$temp$list = xs;
-					n = $temp$n;
-					list = $temp$list;
-					continue drop;
-				}
-			}
-		}
-	});
-var $elm$core$List$takeReverse = F3(
-	function (n, list, kept) {
-		takeReverse:
-		while (true) {
-			if (n <= 0) {
-				return kept;
-			} else {
-				if (!list.b) {
-					return kept;
-				} else {
-					var x = list.a;
-					var xs = list.b;
-					var $temp$n = n - 1,
-						$temp$list = xs,
-						$temp$kept = A2($elm$core$List$cons, x, kept);
-					n = $temp$n;
-					list = $temp$list;
-					kept = $temp$kept;
-					continue takeReverse;
-				}
-			}
-		}
-	});
-var $elm$core$List$takeTailRec = F2(
-	function (n, list) {
-		return $elm$core$List$reverse(
-			A3($elm$core$List$takeReverse, n, list, _List_Nil));
-	});
-var $elm$core$List$takeFast = F3(
-	function (ctr, n, list) {
-		if (n <= 0) {
-			return _List_Nil;
-		} else {
-			var _v0 = _Utils_Tuple2(n, list);
-			_v0$1:
-			while (true) {
-				_v0$5:
-				while (true) {
-					if (!_v0.b.b) {
-						return list;
-					} else {
-						if (_v0.b.b.b) {
-							switch (_v0.a) {
-								case 1:
-									break _v0$1;
-								case 2:
-									var _v2 = _v0.b;
-									var x = _v2.a;
-									var _v3 = _v2.b;
-									var y = _v3.a;
-									return _List_fromArray(
-										[x, y]);
-								case 3:
-									if (_v0.b.b.b.b) {
-										var _v4 = _v0.b;
-										var x = _v4.a;
-										var _v5 = _v4.b;
-										var y = _v5.a;
-										var _v6 = _v5.b;
-										var z = _v6.a;
-										return _List_fromArray(
-											[x, y, z]);
-									} else {
-										break _v0$5;
-									}
-								default:
-									if (_v0.b.b.b.b && _v0.b.b.b.b.b) {
-										var _v7 = _v0.b;
-										var x = _v7.a;
-										var _v8 = _v7.b;
-										var y = _v8.a;
-										var _v9 = _v8.b;
-										var z = _v9.a;
-										var _v10 = _v9.b;
-										var w = _v10.a;
-										var tl = _v10.b;
-										return (ctr > 1000) ? A2(
-											$elm$core$List$cons,
-											x,
-											A2(
-												$elm$core$List$cons,
-												y,
-												A2(
-													$elm$core$List$cons,
-													z,
-													A2(
-														$elm$core$List$cons,
-														w,
-														A2($elm$core$List$takeTailRec, n - 4, tl))))) : A2(
-											$elm$core$List$cons,
-											x,
-											A2(
-												$elm$core$List$cons,
-												y,
-												A2(
-													$elm$core$List$cons,
-													z,
-													A2(
-														$elm$core$List$cons,
-														w,
-														A3($elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
-									} else {
-										break _v0$5;
-									}
-							}
-						} else {
-							if (_v0.a === 1) {
-								break _v0$1;
-							} else {
-								break _v0$5;
-							}
-						}
-					}
-				}
-				return list;
-			}
-			var _v1 = _v0.b;
-			var x = _v1.a;
-			return _List_fromArray(
-				[x]);
-		}
-	});
-var $elm$core$List$take = F2(
-	function (n, list) {
-		return A3($elm$core$List$takeFast, 0, n, list);
-	});
-var $author$project$Auction$cycleActive = function (active) {
-	var rest = A2($elm$core$List$drop, 1, active);
-	var newBack = A2($elm$core$List$take, 1, active);
-	return _Utils_ap(rest, newBack);
-};
 var $elm$core$String$toFloat = _String_toFloat;
 var $author$project$Main$update = F2(
 	function (msg, model) {
@@ -5457,7 +5309,7 @@ var $author$project$Main$update = F2(
 					return _Utils_Tuple2(
 						_Utils_update(
 							model,
-							{activeBidders: model.participants, factor: 1.0, uiState: $author$project$Main$Auction, unAllocatedRent: rent}),
+							{uiState: $author$project$Main$Auction}),
 						$elm$core$Platform$Cmd$none);
 				}
 			default:
@@ -5469,7 +5321,6 @@ var $author$project$Main$update = F2(
 						_Utils_update(
 							model,
 							{
-								activeBidders: $author$project$Auction$cycleActive(model.activeBidders),
 								bidHistory: A2(
 									$elm$core$List$cons,
 									A2($author$project$Auction$Bid, amount, person),
@@ -5481,156 +5332,15 @@ var $author$project$Main$update = F2(
 						_Utils_update(
 							model,
 							{
-								activeBidders: A2($elm$core$List$drop, 1, model.activeBidders),
 								bidHistory: A2($elm$core$List$cons, item, model.bidHistory)
 							}),
 						$elm$core$Platform$Cmd$none);
 				}
 		}
 	});
-var $author$project$Main$ReceiveHistory = function (a) {
-	return {$: 'ReceiveHistory', a: a};
-};
 var $author$project$Main$StartAuction = {$: 'StartAuction'};
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$div = _VirtualDom_node('div');
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
-var $elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(x);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
-var $author$project$Main$findToAuction = function (rooms) {
-	return $elm$core$List$head(
-		A2(
-			$elm$core$List$filter,
-			function (x) {
-				return _Utils_eq(x.status, $author$project$Room$Unallocated);
-			},
-			rooms));
-};
-var $author$project$Auction$getFactorDirection = function (active) {
-	var auctionLen = $elm$core$List$length(active);
-	switch (auctionLen) {
-		case 0:
-			return false;
-		case 1:
-			return false;
-		default:
-			return true;
-	}
-};
-var $author$project$Auction$getNextFactor = F2(
-	function (cur, dir) {
-		var offset = cur / 2;
-		return dir ? (cur + offset) : (cur - offset);
-	});
-var $elm$core$Tuple$second = function (_v0) {
-	var y = _v0.b;
-	return y;
-};
-var $author$project$Auction$nextOffer = F2(
-	function (tup, people) {
-		var factor = A2(
-			$author$project$Auction$getNextFactor,
-			tup.a,
-			$author$project$Auction$getFactorDirection(people));
-		return tup.b * factor;
-	});
-var $elm$core$Basics$not = _Basics_not;
-var $elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
-};
-var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var $elm$html$Html$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			$elm$virtual_dom$VirtualDom$on,
-			event,
-			$elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
-var $elm$html$Html$Events$onClick = function (msg) {
-	return A2(
-		$elm$html$Html$Events$on,
-		'click',
-		$elm$json$Json$Decode$succeed(msg));
-};
-var $elm$html$Html$p = _VirtualDom_node('p');
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $elm$core$Basics$neq = _Utils_notEqual;
-var $author$project$Main$validateModel = function (model) {
-	var setPrice = !_Utils_eq(model.totalRent, $elm$core$Maybe$Nothing);
-	var roomLength = $elm$core$List$length(model.rooms);
-	var partsLength = $elm$core$List$length(model.participants);
-	return (roomLength > 0) && ((partsLength > 0) && (_Utils_eq(roomLength, partsLength) && setPrice));
-};
-var $author$project$Main$auctionDashboard = function (model) {
-	if (!$author$project$Main$validateModel(model)) {
-		return A2(
-			$elm$html$Html$div,
-			_List_Nil,
-			_List_fromArray(
-				[
-					A2(
-					$elm$html$Html$p,
-					_List_Nil,
-					_List_fromArray(
-						[
-							$elm$html$Html$text('Auction not ready to rumble...')
-						]))
-				]));
-	} else {
-		var _v0 = model.uiState;
-		if (_v0.$ === 'ShowInput') {
-			return A2(
-				$elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						A2(
-						$elm$html$Html$p,
-						_List_Nil,
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Auction Ready')
-							])),
-						A2(
-						$elm$html$Html$button,
-						_List_fromArray(
-							[
-								$elm$html$Html$Events$onClick($author$project$Main$StartAuction)
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('Start')
-							]))
-					]));
-		} else {
-			var offer = A2(
-				$author$project$Auction$nextOffer,
-				_Utils_Tuple2(model.factor, model.unAllocatedRent),
-				model.activeBidders);
-			var currRoom = $author$project$Main$findToAuction(model.rooms);
-			var currPerson = $elm$core$List$head(model.activeBidders);
-			return A2($elm$html$Html$div, _List_Nil, _List_Nil);
-		}
-	}
-};
 var $elm$html$Html$h3 = _VirtualDom_node('h3');
 var $author$project$Auction$loggifyHistoryItem = function (item) {
 	if (item.$ === 'Bid') {
@@ -5645,6 +5355,7 @@ var $author$project$Auction$loggifyHistoryItem = function (item) {
 		return {bidAmount: $elm$core$Maybe$Nothing, bidder: person};
 	}
 };
+var $elm$html$Html$p = _VirtualDom_node('p');
 var $elm$core$String$concat = function (strings) {
 	return A2($elm$core$String$join, '', strings);
 };
@@ -5668,6 +5379,8 @@ var $author$project$Auction$parseHistoryLogItem = function (item) {
 				]));
 	}
 };
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Main$historyLogView = function (history) {
 	return A2(
 		$elm$html$Html$div,
@@ -5699,6 +5412,23 @@ var $author$project$Main$historyLogView = function (history) {
 					},
 					history))
 			]));
+};
+var $elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var $elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'click',
+		$elm$json$Json$Decode$succeed(msg));
 };
 var $author$project$Main$AddParticipant = function (a) {
 	return {$: 'AddParticipant', a: a};
@@ -5847,32 +5577,57 @@ var $author$project$Main$roomAdder = function (model) {
 			]));
 };
 var $author$project$Main$view = function (model) {
-	return A2(
-		$elm$html$Html$div,
-		_List_Nil,
-		_List_fromArray(
-			[
-				$author$project$Main$rentSetter(model),
-				$author$project$Main$participantCreator(model),
-				$author$project$Main$roomAdder(model),
-				$author$project$Main$auctionDashboard(model),
-				$author$project$Main$historyLogView(model.bidHistory),
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Events$onClick(
-						$author$project$Main$ReceiveHistory(
-							A2(
-								$author$project$Auction$Bid,
-								500.0,
-								{name: 'Nelly'})))
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('test history add')
-					]))
-			]));
+	var _v0 = model.uiState;
+	if (_v0.$ === 'ShowInput') {
+		return A2(
+			$elm$html$Html$div,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$author$project$Main$rentSetter(model),
+					$author$project$Main$participantCreator(model),
+					$author$project$Main$roomAdder(model),
+					A2(
+					$elm$html$Html$button,
+					_List_fromArray(
+						[
+							$elm$html$Html$Events$onClick($author$project$Main$StartAuction)
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text('Start')
+						]))
+				]));
+	} else {
+		return A2(
+			$elm$html$Html$div,
+			_List_Nil,
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$p,
+					_List_Nil,
+					_List_fromArray(
+						[
+							$elm$html$Html$text('x for room x')
+						])),
+					A2(
+					$elm$html$Html$button,
+					_List_Nil,
+					_List_fromArray(
+						[
+							$elm$html$Html$text('accept')
+						])),
+					A2(
+					$elm$html$Html$button,
+					_List_Nil,
+					_List_fromArray(
+						[
+							$elm$html$Html$text('decline')
+						])),
+					$author$project$Main$historyLogView(model.bidHistory)
+				]));
+	}
 };
 var $author$project$Main$main = $elm$browser$Browser$element(
 	{
