@@ -1,12 +1,9 @@
 module Main exposing (main)
 
-import Auction exposing (HistoryItem(..), loggifyHistoryItem, parseHistoryLogItem)
 import Browser
 import Html exposing (Html, button, div, h1, h2, h3, input, p, text)
 import Html.Attributes exposing (placeholder, value)
-import Html.Events exposing (onClick, onInput)
 import Participant exposing (Participant)
-import Platform.Cmd as Cmd
 import Room exposing (..)
 
 
@@ -26,36 +23,58 @@ main =
 
 type Model
     = Setup SetupFields
-    | Auction AuctionOptions
+    | SetupFail Problem
+    | Auction AuctionState
     | Results
 
 
 type alias SetupFields =
     { people : List String
-    , totalRent : Float
+    , totalRent : Maybe Float
     , roomNames : List String
     }
 
 
-type alias AuctionOptions =
-    { max : Float
-    , people : List String
-    , currPrice : Float
-    }
+type AuctionState
+    = Foo
+        { max : Float
+        , currBidder : Bidder
+        , nextBidder : List Bidder
+        , currPrice : Float
+        }
+    | Result
+        { winner : Bidder
+        , amount : Float
+        }
+
+
+type Direction
+    = Up
+    | Down
 
 
 type alias Bidder =
-    { person : String, status : BidStatus }
+    { name : String, status : BidStatus }
 
 
 type BidStatus
     = Active
-    | Declined
+    | Declined Float
+
+
+type Problem
+    = PeopleProblem
+    | RentProblem
+    | RoomProblem
 
 
 initialModel : Model
 initialModel =
     Setup
+        { people = []
+        , totalRent = Nothing
+        , roomNames = []
+        }
 
 
 
@@ -89,14 +108,3 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
     div [] []
-
-
-historyLogView : List HistoryItem -> Html Msg
-historyLogView history =
-    div []
-        [ h3 []
-            [ text "History" ]
-        , div
-            []
-            (List.map (\x -> p [] [ text (loggifyHistoryItem x |> parseHistoryLogItem) ]) history)
-        ]
