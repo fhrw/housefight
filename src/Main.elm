@@ -35,17 +35,12 @@ type alias SetupFields =
     }
 
 
-type AuctionState
-    = Foo
-        { max : Float
-        , currBidder : Bidder
-        , nextBidder : List Bidder
-        , currPrice : Float
-        }
-    | Result
-        { winner : Bidder
-        , amount : Float
-        }
+type alias AuctionState =
+    { max : Float
+    , currBidder : Bidder
+    , nextBidder : List Bidder
+    , currPrice : Float
+    }
 
 
 type Direction
@@ -66,6 +61,53 @@ type Problem
     = PeopleProblem
     | RentProblem
     | RoomProblem
+
+
+declinedEnd : Bidder -> Bidder -> Order
+declinedEnd a b =
+    if a.status == b.status then
+        EQ
+
+    else
+        LT
+
+
+newAmount : Float -> Float -> Direction -> Float
+newAmount old step direction =
+    let
+        offset =
+            step * 0.5
+    in
+    case direction of
+        Up ->
+            old + offset
+
+        Down ->
+            old - offset
+
+
+hasWinner : AuctionState -> Bool
+hasWinner state =
+    if isDeclined state.currBidder && allDeclined state.nextBidder then
+        False
+
+    else
+        True
+
+
+allDeclined : List Bidder -> Bool
+allDeclined bidders =
+    (List.filter isDeclined bidders |> List.length) == 0
+
+
+isDeclined : Bidder -> Bool
+isDeclined bidder =
+    case bidder.status of
+        Declined _ ->
+            True
+
+        _ ->
+            False
 
 
 initialModel : Model
