@@ -1,4 +1,4 @@
-module Main exposing (BidStatus(..), declineSort, declinedSortHelper, main)
+module Main exposing (AuctionState, BidStatus(..), declineSort, declinedSortHelper, main, nextState)
 
 import Browser
 import Html exposing (Html, button, div, h1, h2, h3, input, p, text)
@@ -41,6 +41,26 @@ type alias AuctionState =
     , nextBidder : List Bidder
     , currPrice : Float
     }
+
+
+nextState : AuctionState -> AuctionState
+nextState oldState =
+    let
+        newCurrent =
+            List.head oldState.nextBidder
+    in
+    case newCurrent of
+        Nothing ->
+            oldState
+
+        Just new ->
+            { oldState
+                | currBidder = new
+                , nextBidder =
+                    List.drop 1 oldState.nextBidder
+                        ++ [ oldState.currBidder ]
+                        |> declineSort
+            }
 
 
 type Direction

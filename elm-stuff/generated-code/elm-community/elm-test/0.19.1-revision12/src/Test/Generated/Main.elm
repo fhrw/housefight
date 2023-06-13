@@ -13,7 +13,7 @@ main =
     Test.Runner.Node.run
         { runs = 100
         , report = ConsoleReport UseColor
-        , seed = 87346506750886
+        , seed = 124229188103743
         , processes = 4
         , globs =
             []
@@ -27,7 +27,8 @@ main =
             ]
           )
         , ( "MainTests"
-          , [ Test.Runner.Node.check MainTests.declineSortHelperTest
+          , [ Test.Runner.Node.check MainTests.nextStateTest
+            , Test.Runner.Node.check MainTests.declineSortHelperTest
             , Test.Runner.Node.check MainTests.declineSortTest
             ]
           )

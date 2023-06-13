@@ -2,8 +2,36 @@ module MainTests exposing (..)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
-import Main exposing (BidStatus(..), declineSort, declinedSortHelper)
+import Main exposing (BidStatus(..), declineSort, declinedSortHelper, nextState)
 import Test exposing (..)
+
+
+nextStateTest : Test
+nextStateTest =
+    let
+        oldState =
+            { max = 400
+            , currBidder = { name = "steve", status = Active }
+            , nextBidder =
+                [ { name = "mary", status = Active }
+                , { name = "rosebud", status = Declined 200 }
+                ]
+            , currPrice = 350
+            }
+
+        want =
+            { max = 400
+            , currBidder = { name = "mary", status = Active }
+            , nextBidder =
+                [ { name = "steve", status = Active }
+                , { name = "rosebud", status = Declined 200 }
+                ]
+            , currPrice = 350
+            }
+    in
+    test
+        "correctly rearrange bidders!"
+        (\_ -> Expect.equal want (nextState oldState))
 
 
 declineSortHelperTest : Test

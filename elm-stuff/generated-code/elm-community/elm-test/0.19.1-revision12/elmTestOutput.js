@@ -2779,10 +2779,6 @@ var $author$project$MainTests$declineSortTest = function () {
 			name: 'mary',
 			status: $author$project$Main$Declined(4500)
 		},
-			{
-			name: 'martha',
-			status: $author$project$Main$Declined(4500)
-		},
 			{name: 'bruce', status: $author$project$Main$Active}
 		]);
 	return A2(
@@ -3178,6 +3174,91 @@ var $elm$core$Result$isOk = function (result) {
 	}
 };
 var $elm$json$Json$Decode$int = _Json_decodeInt;
+var $elm$core$List$drop = F2(
+	function (n, list) {
+		drop:
+		while (true) {
+			if (n <= 0) {
+				return list;
+			} else {
+				if (!list.b) {
+					return list;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs;
+					n = $temp$n;
+					list = $temp$list;
+					continue drop;
+				}
+			}
+		}
+	});
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $author$project$Main$nextState = function (oldState) {
+	var newCurrent = $elm$core$List$head(oldState.nextBidder);
+	if (newCurrent.$ === 'Nothing') {
+		return oldState;
+	} else {
+		var _new = newCurrent.a;
+		return _Utils_update(
+			oldState,
+			{
+				currBidder: _new,
+				nextBidder: $author$project$Main$declineSort(
+					_Utils_ap(
+						A2($elm$core$List$drop, 1, oldState.nextBidder),
+						_List_fromArray(
+							[oldState.currBidder])))
+			});
+	}
+};
+var $author$project$MainTests$nextStateTest = function () {
+	var want = {
+		currBidder: {name: 'mary', status: $author$project$Main$Active},
+		currPrice: 350,
+		max: 400,
+		nextBidder: _List_fromArray(
+			[
+				{name: 'steve', status: $author$project$Main$Active},
+				{
+				name: 'rosebud',
+				status: $author$project$Main$Declined(200)
+			}
+			])
+	};
+	var oldState = {
+		currBidder: {name: 'steve', status: $author$project$Main$Active},
+		currPrice: 350,
+		max: 400,
+		nextBidder: _List_fromArray(
+			[
+				{name: 'mary', status: $author$project$Main$Active},
+				{
+				name: 'rosebud',
+				status: $author$project$Main$Declined(200)
+			}
+			])
+	};
+	return A2(
+		$elm_explorations$test$Test$test,
+		'correctly rearrange bidders!',
+		function (_v0) {
+			return A2(
+				$elm_explorations$test$Expect$equal,
+				want,
+				$author$project$Main$nextState(oldState));
+		});
+}();
 var $author$project$Test$Runner$Node$Receive = function (a) {
 	return {$: 'Receive', a: a};
 };
@@ -4677,27 +4758,6 @@ var $elm$core$Maybe$map = F2(
 				f(value));
 		} else {
 			return $elm$core$Maybe$Nothing;
-		}
-	});
-var $elm$core$List$drop = F2(
-	function (n, list) {
-		drop:
-		while (true) {
-			if (n <= 0) {
-				return list;
-			} else {
-				if (!list.b) {
-					return list;
-				} else {
-					var x = list.a;
-					var xs = list.b;
-					var $temp$n = n - 1,
-						$temp$list = xs;
-					n = $temp$n;
-					list = $temp$list;
-					continue drop;
-				}
-			}
 		}
 	});
 var $elm$core$List$takeReverse = F3(
@@ -7750,7 +7810,7 @@ var $author$project$Test$Generated$Main$main = A2(
 		processes: 4,
 		report: $author$project$Test$Reporter$Reporter$ConsoleReport($author$project$Console$Text$UseColor),
 		runs: 100,
-		seed: 87346506750886
+		seed: 124229188103743
 	},
 	_List_fromArray(
 		[
@@ -7764,6 +7824,7 @@ var $author$project$Test$Generated$Main$main = A2(
 			'MainTests',
 			_List_fromArray(
 				[
+					$author$project$Test$Runner$Node$check($author$project$MainTests$nextStateTest),
 					$author$project$Test$Runner$Node$check($author$project$MainTests$declineSortHelperTest),
 					$author$project$Test$Runner$Node$check($author$project$MainTests$declineSortTest)
 				]))
@@ -7771,7 +7832,7 @@ var $author$project$Test$Generated$Main$main = A2(
 _Platform_export({'Test':{'Generated':{'Main':{'init':$author$project$Test$Generated$Main$main($elm$json$Json$Decode$int)(0)}}}});}(this));
 return this.Elm;
 })({});
-var pipeFilename = "/tmp/elm_test-34080.sock";
+var pipeFilename = "/tmp/elm_test-50867.sock";
 var net = require('net'),
   client = net.createConnection(pipeFilename);
 
