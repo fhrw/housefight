@@ -1,4 +1,4 @@
-module Main exposing (main)
+module Main exposing (BidStatus(..), declineSort, declinedSortHelper, main)
 
 import Browser
 import Html exposing (Html, button, div, h1, h2, h3, input, p, text)
@@ -63,13 +63,21 @@ type Problem
     | RoomProblem
 
 
-declinedEnd : Bidder -> Bidder -> Order
-declinedEnd a b =
-    if a.status == b.status then
+declineSort : List Bidder -> List Bidder
+declineSort bidders =
+    List.sortWith declinedSortHelper bidders
+
+
+declinedSortHelper : Bidder -> Bidder -> Order
+declinedSortHelper a b =
+    if isDeclined a == isDeclined b then
         EQ
 
-    else
+    else if not (isDeclined a) && isDeclined b then
         LT
+
+    else
+        GT
 
 
 newAmount : Float -> Float -> Direction -> Float

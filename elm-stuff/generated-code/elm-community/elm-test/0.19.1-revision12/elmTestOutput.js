@@ -2611,18 +2611,29 @@ var $author$project$Main$Active = {$: 'Active'};
 var $author$project$Main$Declined = function (a) {
 	return {$: 'Declined', a: a};
 };
+var $elm$core$Basics$and = _Basics_and;
 var $elm$core$Basics$eq = _Utils_equal;
-var $author$project$Main$declinedEnd = F2(
+var $elm$core$Basics$False = {$: 'False'};
+var $elm$core$Basics$True = {$: 'True'};
+var $author$project$Main$isDeclined = function (bidder) {
+	var _v0 = bidder.status;
+	if (_v0.$ === 'Declined') {
+		return true;
+	} else {
+		return false;
+	}
+};
+var $elm$core$Basics$not = _Basics_not;
+var $author$project$Main$declinedSortHelper = F2(
 	function (a, b) {
-		return _Utils_eq(a.status, b.status) ? $elm$core$Basics$EQ : $elm$core$Basics$LT;
+		return _Utils_eq(
+			$author$project$Main$isDeclined(a),
+			$author$project$Main$isDeclined(b)) ? $elm$core$Basics$EQ : (((!$author$project$Main$isDeclined(a)) && $author$project$Main$isDeclined(b)) ? $elm$core$Basics$LT : $elm$core$Basics$GT);
 	});
 var $elm_explorations$test$Test$Runner$Failure$Equality = F2(
 	function (a, b) {
 		return {$: 'Equality', a: a, b: b};
 	});
-var $elm$core$Basics$False = {$: 'False'};
-var $elm$core$Basics$True = {$: 'True'};
-var $elm$core$Basics$and = _Basics_and;
 var $elm$core$Maybe$Just = function (a) {
 	return {$: 'Just', a: a};
 };
@@ -2643,7 +2654,6 @@ var $elm_explorations$test$Expect$fail = function (str) {
 	return $elm_explorations$test$Test$Expectation$fail(
 		{description: str, reason: $elm_explorations$test$Test$Runner$Failure$Custom});
 };
-var $elm$core$Basics$not = _Basics_not;
 var $elm$core$Basics$or = _Basics_or;
 var $elm$core$Basics$apR = F2(
 	function (x, f) {
@@ -2732,20 +2742,57 @@ var $elm_explorations$test$Test$test = F2(
 						]);
 				}));
 	});
-var $author$project$Example$declinedTest = function () {
-	var b = {
-		name: 'angle',
-		status: $author$project$Main$Declined(300)
+var $author$project$MainTests$declineSortHelperTest = function () {
+	var b = {name: 'steve', status: $author$project$Main$Active};
+	var a = {
+		name: 'mary',
+		status: $author$project$Main$Declined(400)
 	};
-	var a = {name: 'steve', status: $author$project$Main$Active};
 	return A2(
 		$elm_explorations$test$Test$test,
-		'make sur eit does something expected',
+		'should return correct Order value',
 		function (_v0) {
 			return A2(
 				$elm_explorations$test$Expect$equal,
-				$elm$core$Basics$LT,
-				A2($author$project$Main$declinedEnd, b, a));
+				$elm$core$Basics$GT,
+				A2($author$project$Main$declinedSortHelper, a, b));
+		});
+}();
+var $elm$core$List$sortWith = _List_sortWith;
+var $author$project$Main$declineSort = function (bidders) {
+	return A2($elm$core$List$sortWith, $author$project$Main$declinedSortHelper, bidders);
+};
+var $author$project$MainTests$declineSortTest = function () {
+	var want = _List_fromArray(
+		[
+			{name: 'steve', status: $author$project$Main$Active},
+			{name: 'bruce', status: $author$project$Main$Active},
+			{
+			name: 'mary',
+			status: $author$project$Main$Declined(4500)
+		}
+		]);
+	var input = _List_fromArray(
+		[
+			{name: 'steve', status: $author$project$Main$Active},
+			{
+			name: 'mary',
+			status: $author$project$Main$Declined(4500)
+		},
+			{
+			name: 'martha',
+			status: $author$project$Main$Declined(4500)
+		},
+			{name: 'bruce', status: $author$project$Main$Active}
+		]);
+	return A2(
+		$elm_explorations$test$Test$test,
+		'declined should all be at the end!',
+		function (_v0) {
+			return A2(
+				$elm_explorations$test$Expect$equal,
+				want,
+				$author$project$Main$declineSort(input));
 		});
 }();
 var $elm$core$Result$Err = function (a) {
@@ -3131,35 +3178,6 @@ var $elm$core$Result$isOk = function (result) {
 	}
 };
 var $elm$json$Json$Decode$int = _Json_decodeInt;
-var $author$project$Main$Down = {$: 'Down'};
-var $author$project$Main$newAmount = F3(
-	function (old, step, direction) {
-		var offset = step * 0.5;
-		if (direction.$ === 'Up') {
-			return old + offset;
-		} else {
-			return old - offset;
-		}
-	});
-var $author$project$Example$nextDownTest = A2(
-	$elm_explorations$test$Test$test,
-	'test that down works',
-	function (_v0) {
-		return A2(
-			$elm_explorations$test$Expect$equal,
-			300,
-			A3($author$project$Main$newAmount, 400, 200, $author$project$Main$Down));
-	});
-var $author$project$Main$Up = {$: 'Up'};
-var $author$project$Example$nextUpTest = A2(
-	$elm_explorations$test$Test$test,
-	'test that nextAmount works',
-	function (_v0) {
-		return A2(
-			$elm_explorations$test$Expect$equal,
-			500,
-			A3($author$project$Main$newAmount, 400, 200, $author$project$Main$Up));
-	});
 var $author$project$Test$Runner$Node$Receive = function (a) {
 	return {$: 'Receive', a: a};
 };
@@ -7728,11 +7746,11 @@ var $author$project$Test$Generated$Main$main = A2(
 	{
 		globs: _List_Nil,
 		paths: _List_fromArray(
-			['/home/felix/Dev/room-auction/tests/Example.elm']),
+			['/home/felix/Dev/room-auction/tests/Example.elm', '/home/felix/Dev/room-auction/tests/MainTests.elm']),
 		processes: 4,
 		report: $author$project$Test$Reporter$Reporter$ConsoleReport($author$project$Console$Text$UseColor),
 		runs: 100,
-		seed: 124933068283697
+		seed: 87346506750886
 	},
 	_List_fromArray(
 		[
@@ -7740,16 +7758,20 @@ var $author$project$Test$Generated$Main$main = A2(
 			'Example',
 			_List_fromArray(
 				[
-					$author$project$Test$Runner$Node$check($author$project$Example$suite),
-					$author$project$Test$Runner$Node$check($author$project$Example$declinedTest),
-					$author$project$Test$Runner$Node$check($author$project$Example$nextUpTest),
-					$author$project$Test$Runner$Node$check($author$project$Example$nextDownTest)
+					$author$project$Test$Runner$Node$check($author$project$Example$suite)
+				])),
+			_Utils_Tuple2(
+			'MainTests',
+			_List_fromArray(
+				[
+					$author$project$Test$Runner$Node$check($author$project$MainTests$declineSortHelperTest),
+					$author$project$Test$Runner$Node$check($author$project$MainTests$declineSortTest)
 				]))
 		]));
 _Platform_export({'Test':{'Generated':{'Main':{'init':$author$project$Test$Generated$Main$main($elm$json$Json$Decode$int)(0)}}}});}(this));
 return this.Elm;
 })({});
-var pipeFilename = "/tmp/elm_test-76605.sock";
+var pipeFilename = "/tmp/elm_test-34080.sock";
 var net = require('net'),
   client = net.createConnection(pipeFilename);
 

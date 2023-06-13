@@ -1,6 +1,7 @@
 module Test.Generated.Main exposing (main)
 
 import Example
+import MainTests
 
 import Test.Reporter.Reporter exposing (Report(..))
 import Console.Text exposing (UseColor(..))
@@ -12,19 +13,22 @@ main =
     Test.Runner.Node.run
         { runs = 100
         , report = ConsoleReport UseColor
-        , seed = 124933068283697
+        , seed = 87346506750886
         , processes = 4
         , globs =
             []
         , paths =
             [ "/home/felix/Dev/room-auction/tests/Example.elm"
+            , "/home/felix/Dev/room-auction/tests/MainTests.elm"
             ]
         }
         [ ( "Example"
           , [ Test.Runner.Node.check Example.suite
-            , Test.Runner.Node.check Example.declinedTest
-            , Test.Runner.Node.check Example.nextUpTest
-            , Test.Runner.Node.check Example.nextDownTest
+            ]
+          )
+        , ( "MainTests"
+          , [ Test.Runner.Node.check MainTests.declineSortHelperTest
+            , Test.Runner.Node.check MainTests.declineSortTest
             ]
           )
         ]
