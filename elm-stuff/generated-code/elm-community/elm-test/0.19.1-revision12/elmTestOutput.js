@@ -2596,7 +2596,7 @@ var $elm$core$Basics$LT = {$: 'LT'};
 var $author$project$Test$Reporter$Reporter$ConsoleReport = function (a) {
 	return {$: 'ConsoleReport', a: a};
 };
-var $author$project$Console$Text$UseColor = {$: 'UseColor'};
+var $author$project$Console$Text$Monochrome = {$: 'Monochrome'};
 var $elm$core$Debug$todo = _Debug_todo;
 var $author$project$Test$Runner$Node$checkHelperReplaceMe___ = function (_v0) {
 	return _Debug_todo(
@@ -2791,6 +2791,138 @@ var $author$project$MainTests$declineSortTest = function () {
 				$author$project$Main$declineSort(input));
 		});
 }();
+var $elm$core$Basics$add = _Basics_add;
+var $elm$core$List$foldl = F3(
+	function (func, acc, list) {
+		foldl:
+		while (true) {
+			if (!list.b) {
+				return acc;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				var $temp$func = func,
+					$temp$acc = A2(func, x, acc),
+					$temp$list = xs;
+				func = $temp$func;
+				acc = $temp$acc;
+				list = $temp$list;
+				continue foldl;
+			}
+		}
+	});
+var $elm$core$Basics$gt = _Utils_gt;
+var $elm$core$List$reverse = function (list) {
+	return A3($elm$core$List$foldl, $elm$core$List$cons, _List_Nil, list);
+};
+var $elm$core$List$foldrHelper = F4(
+	function (fn, acc, ctr, ls) {
+		if (!ls.b) {
+			return acc;
+		} else {
+			var a = ls.a;
+			var r1 = ls.b;
+			if (!r1.b) {
+				return A2(fn, a, acc);
+			} else {
+				var b = r1.a;
+				var r2 = r1.b;
+				if (!r2.b) {
+					return A2(
+						fn,
+						a,
+						A2(fn, b, acc));
+				} else {
+					var c = r2.a;
+					var r3 = r2.b;
+					if (!r3.b) {
+						return A2(
+							fn,
+							a,
+							A2(
+								fn,
+								b,
+								A2(fn, c, acc)));
+					} else {
+						var d = r3.a;
+						var r4 = r3.b;
+						var res = (ctr > 500) ? A3(
+							$elm$core$List$foldl,
+							fn,
+							acc,
+							$elm$core$List$reverse(r4)) : A4($elm$core$List$foldrHelper, fn, acc, ctr + 1, r4);
+						return A2(
+							fn,
+							a,
+							A2(
+								fn,
+								b,
+								A2(
+									fn,
+									c,
+									A2(fn, d, res))));
+					}
+				}
+			}
+		}
+	});
+var $elm$core$List$foldr = F3(
+	function (fn, acc, ls) {
+		return A4($elm$core$List$foldrHelper, fn, acc, 0, ls);
+	});
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var $elm$core$List$length = function (xs) {
+	return A3(
+		$elm$core$List$foldl,
+		F2(
+			function (_v0, i) {
+				return i + 1;
+			}),
+		0,
+		xs);
+};
+var $author$project$Main$allDeclined = function (bidders) {
+	return !$elm$core$List$length(
+		A2($elm$core$List$filter, $author$project$Main$isDeclined, bidders));
+};
+var $author$project$Main$hasWinner = function (state) {
+	return ($author$project$Main$isDeclined(state.currBidder) && $author$project$Main$allDeclined(state.nextBidder)) ? false : ((!$author$project$Main$allDeclined(state.nextBidder)) ? false : true);
+};
+var $author$project$MainTests$hasWinnerTest = function () {
+	var state = {
+		currBidder: {name: 'steve', status: $author$project$Main$Active},
+		currPrice: 350,
+		max: 400,
+		nextBidder: _List_fromArray(
+			[
+				{name: 'mary', status: $author$project$Main$Active},
+				{
+				name: 'rosebud',
+				status: $author$project$Main$Declined(200)
+			}
+			]),
+		step: 50
+	};
+	return A2(
+		$elm_explorations$test$Test$test,
+		'doesn\'t have a winner',
+		function (_v0) {
+			return A2(
+				$elm_explorations$test$Expect$equal,
+				false,
+				$author$project$Main$hasWinner(state));
+		});
+}();
 var $elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
 };
@@ -2812,7 +2944,6 @@ var $elm$core$Result$Ok = function (a) {
 var $elm$json$Json$Decode$OneOf = function (a) {
 	return {$: 'OneOf', a: a};
 };
-var $elm$core$Basics$add = _Basics_add;
 var $elm$core$String$all = _String_all;
 var $elm$core$Basics$append = _Utils_append;
 var $elm$json$Json$Encode$encode = _Json_encode;
@@ -2834,35 +2965,6 @@ var $elm$json$Json$Decode$indent = function (str) {
 		$elm$core$String$join,
 		'\n    ',
 		A2($elm$core$String$split, '\n', str));
-};
-var $elm$core$List$foldl = F3(
-	function (func, acc, list) {
-		foldl:
-		while (true) {
-			if (!list.b) {
-				return acc;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				var $temp$func = func,
-					$temp$acc = A2(func, x, acc),
-					$temp$list = xs;
-				func = $temp$func;
-				acc = $temp$acc;
-				list = $temp$list;
-				continue foldl;
-			}
-		}
-	});
-var $elm$core$List$length = function (xs) {
-	return A3(
-		$elm$core$List$foldl,
-		F2(
-			function (_v0, i) {
-				return i + 1;
-			}),
-		0,
-		xs);
 };
 var $elm$core$List$map2 = _List_map2;
 var $elm$core$Basics$le = _Utils_le;
@@ -2917,9 +3019,6 @@ var $elm$core$Char$isDigit = function (_char) {
 };
 var $elm$core$Char$isAlphaNum = function (_char) {
 	return $elm$core$Char$isLower(_char) || ($elm$core$Char$isUpper(_char) || $elm$core$Char$isDigit(_char));
-};
-var $elm$core$List$reverse = function (list) {
-	return A3($elm$core$List$foldl, $elm$core$List$cons, _List_Nil, list);
 };
 var $elm$core$String$uncons = _String_uncons;
 var $elm$json$Json$Decode$errorOneOf = F2(
@@ -3051,7 +3150,6 @@ var $elm$core$Basics$apL = F2(
 	});
 var $elm$core$Basics$floor = _Basics_floor;
 var $elm$core$Elm$JsArray$length = _JsArray_length;
-var $elm$core$Basics$gt = _Utils_gt;
 var $elm$core$Basics$max = F2(
 	function (x, y) {
 		return (_Utils_cmp(x, y) > 0) ? x : y;
@@ -3174,6 +3272,15 @@ var $elm$core$Result$isOk = function (result) {
 	}
 };
 var $elm$json$Json$Decode$int = _Json_decodeInt;
+var $author$project$Main$Down = {$: 'Down'};
+var $author$project$Main$nextAmount = F3(
+	function (old, step, direction) {
+		if (direction.$ === 'Up') {
+			return old + step;
+		} else {
+			return old - step;
+		}
+	});
 var $elm$core$List$drop = F2(
 	function (n, list) {
 		drop:
@@ -3204,7 +3311,7 @@ var $elm$core$List$head = function (list) {
 		return $elm$core$Maybe$Nothing;
 	}
 };
-var $author$project$Main$nextState = function (oldState) {
+var $author$project$Main$nextBidders = function (oldState) {
 	var newCurrent = $elm$core$List$head(oldState.nextBidder);
 	if (newCurrent.$ === 'Nothing') {
 		return oldState;
@@ -3222,6 +3329,55 @@ var $author$project$Main$nextState = function (oldState) {
 			});
 	}
 };
+var $author$project$Main$nextAuctionState = F2(
+	function (old, dir) {
+		return $author$project$Main$nextBidders(
+			_Utils_update(
+				old,
+				{
+					currPrice: A3($author$project$Main$nextAmount, old.currPrice, old.step, dir),
+					step: old.step / 2
+				}));
+	});
+var $author$project$MainTests$nextAuctionStateTest = function () {
+	var state = {
+		currBidder: {name: 'steve', status: $author$project$Main$Active},
+		currPrice: 400,
+		max: 400,
+		nextBidder: _List_fromArray(
+			[
+				{name: 'mary', status: $author$project$Main$Active},
+				{
+				name: 'rosebud',
+				status: $author$project$Main$Declined(400)
+			}
+			]),
+		step: 200
+	};
+	var _new = {
+		currBidder: {name: 'mary', status: $author$project$Main$Active},
+		currPrice: 200,
+		max: 400,
+		nextBidder: _List_fromArray(
+			[
+				{name: 'steve', status: $author$project$Main$Active},
+				{
+				name: 'rosebud',
+				status: $author$project$Main$Declined(400)
+			}
+			]),
+		step: 100
+	};
+	return A2(
+		$elm_explorations$test$Test$test,
+		'outputs correct next step',
+		function (_v0) {
+			return A2(
+				$elm_explorations$test$Expect$equal,
+				_new,
+				A2($author$project$Main$nextAuctionState, state, $author$project$Main$Down));
+		});
+}();
 var $author$project$MainTests$nextStateTest = function () {
 	var want = {
 		currBidder: {name: 'mary', status: $author$project$Main$Active},
@@ -3234,7 +3390,8 @@ var $author$project$MainTests$nextStateTest = function () {
 				name: 'rosebud',
 				status: $author$project$Main$Declined(200)
 			}
-			])
+			]),
+		step: 50
 	};
 	var oldState = {
 		currBidder: {name: 'steve', status: $author$project$Main$Active},
@@ -3247,7 +3404,8 @@ var $author$project$MainTests$nextStateTest = function () {
 				name: 'rosebud',
 				status: $author$project$Main$Declined(200)
 			}
-			])
+			]),
+		step: 50
 	};
 	return A2(
 		$elm_explorations$test$Test$test,
@@ -3256,7 +3414,7 @@ var $author$project$MainTests$nextStateTest = function () {
 			return A2(
 				$elm_explorations$test$Expect$equal,
 				want,
-				$author$project$Main$nextState(oldState));
+				$author$project$Main$nextBidders(oldState));
 		});
 }();
 var $author$project$Test$Runner$Node$Receive = function (a) {
@@ -3267,61 +3425,6 @@ var $elm_explorations$test$Test$Internal$ElmTestVariant__Batch = function (a) {
 	return {__elmTestSymbol: __elmTestSymbol, $: 'ElmTestVariant__Batch', a: a};
 };
 var $elm_explorations$test$Test$Runner$Failure$EmptyList = {$: 'EmptyList'};
-var $elm$core$List$foldrHelper = F4(
-	function (fn, acc, ctr, ls) {
-		if (!ls.b) {
-			return acc;
-		} else {
-			var a = ls.a;
-			var r1 = ls.b;
-			if (!r1.b) {
-				return A2(fn, a, acc);
-			} else {
-				var b = r1.a;
-				var r2 = r1.b;
-				if (!r2.b) {
-					return A2(
-						fn,
-						a,
-						A2(fn, b, acc));
-				} else {
-					var c = r2.a;
-					var r3 = r2.b;
-					if (!r3.b) {
-						return A2(
-							fn,
-							a,
-							A2(
-								fn,
-								b,
-								A2(fn, c, acc)));
-					} else {
-						var d = r3.a;
-						var r4 = r3.b;
-						var res = (ctr > 500) ? A3(
-							$elm$core$List$foldl,
-							fn,
-							acc,
-							$elm$core$List$reverse(r4)) : A4($elm$core$List$foldrHelper, fn, acc, ctr + 1, r4);
-						return A2(
-							fn,
-							a,
-							A2(
-								fn,
-								b,
-								A2(
-									fn,
-									c,
-									A2(fn, d, res))));
-					}
-				}
-			}
-		}
-	});
-var $elm$core$List$foldr = F3(
-	function (fn, acc, ls) {
-		return A4($elm$core$List$foldrHelper, fn, acc, 0, ls);
-	});
 var $elm$core$List$append = F2(
 	function (xs, ys) {
 		if (!ys.b) {
@@ -4026,17 +4129,6 @@ var $author$project$Test$Reporter$Json$reportBegin = function (_v0) {
 						$elm$core$String$fromInt(initialSeed)))
 				])));
 };
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
 var $elm_explorations$test$AsciiTable$AlignLeft = {$: 'AlignLeft'};
 var $elm_explorations$test$AsciiTable$AlignRight = {$: 'AlignRight'};
 var $elm_explorations$test$Test$Runner$Distribution$bars = 30;
@@ -7806,11 +7898,11 @@ var $author$project$Test$Generated$Main$main = A2(
 	{
 		globs: _List_Nil,
 		paths: _List_fromArray(
-			['/home/felix/Dev/room-auction/tests/Example.elm', '/home/felix/Dev/room-auction/tests/MainTests.elm']),
-		processes: 4,
-		report: $author$project$Test$Reporter$Reporter$ConsoleReport($author$project$Console$Text$UseColor),
+			['/Users/felix/Dev/housefight/tests/Example.elm', '/Users/felix/Dev/housefight/tests/MainTests.elm']),
+		processes: 10,
+		report: $author$project$Test$Reporter$Reporter$ConsoleReport($author$project$Console$Text$Monochrome),
 		runs: 100,
-		seed: 124229188103743
+		seed: 56375207770298
 	},
 	_List_fromArray(
 		[
@@ -7824,6 +7916,8 @@ var $author$project$Test$Generated$Main$main = A2(
 			'MainTests',
 			_List_fromArray(
 				[
+					$author$project$Test$Runner$Node$check($author$project$MainTests$nextAuctionStateTest),
+					$author$project$Test$Runner$Node$check($author$project$MainTests$hasWinnerTest),
 					$author$project$Test$Runner$Node$check($author$project$MainTests$nextStateTest),
 					$author$project$Test$Runner$Node$check($author$project$MainTests$declineSortHelperTest),
 					$author$project$Test$Runner$Node$check($author$project$MainTests$declineSortTest)
@@ -7832,7 +7926,7 @@ var $author$project$Test$Generated$Main$main = A2(
 _Platform_export({'Test':{'Generated':{'Main':{'init':$author$project$Test$Generated$Main$main($elm$json$Json$Decode$int)(0)}}}});}(this));
 return this.Elm;
 })({});
-var pipeFilename = "/tmp/elm_test-50867.sock";
+var pipeFilename = "/tmp/elm_test-7771.sock";
 var net = require('net'),
   client = net.createConnection(pipeFilename);
 

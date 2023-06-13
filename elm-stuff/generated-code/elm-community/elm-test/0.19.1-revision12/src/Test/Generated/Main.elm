@@ -12,14 +12,14 @@ main : Test.Runner.Node.TestProgram
 main =
     Test.Runner.Node.run
         { runs = 100
-        , report = ConsoleReport UseColor
-        , seed = 124229188103743
-        , processes = 4
+        , report = ConsoleReport Monochrome
+        , seed = 56375207770298
+        , processes = 10
         , globs =
             []
         , paths =
-            [ "/home/felix/Dev/room-auction/tests/Example.elm"
-            , "/home/felix/Dev/room-auction/tests/MainTests.elm"
+            [ "/Users/felix/Dev/housefight/tests/Example.elm"
+            , "/Users/felix/Dev/housefight/tests/MainTests.elm"
             ]
         }
         [ ( "Example"
@@ -27,7 +27,9 @@ main =
             ]
           )
         , ( "MainTests"
-          , [ Test.Runner.Node.check MainTests.nextStateTest
+          , [ Test.Runner.Node.check MainTests.nextAuctionStateTest
+            , Test.Runner.Node.check MainTests.hasWinnerTest
+            , Test.Runner.Node.check MainTests.nextStateTest
             , Test.Runner.Node.check MainTests.declineSortHelperTest
             , Test.Runner.Node.check MainTests.declineSortTest
             ]

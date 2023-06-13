@@ -2,7 +2,7 @@
     "type": "application",
     "source-directories": [
         "src",
-        "../../../../../../../../../usr/lib/node_modules/elm-test/elm/src",
+        "../../../../../../../.nvm/versions/node/v20.1.0/lib/node_modules/elm-test/elm/src",
         "../../../../../src",
         "../../../../../tests"
     ],

@@ -1,4 +1,4 @@
-module Main exposing (AuctionState, BidStatus(..), declineSort, declinedSortHelper, main, nextBidders)
+module Main exposing (AuctionState, BidStatus(..), Direction(..), declineSort, declinedSortHelper, hasWinner, main, nextAuctionState, nextBidders)
 
 import Browser
 import Html exposing (Html, button, div, h1, h2, h3, input, p, text)
@@ -35,6 +35,44 @@ type alias SetupFields =
     }
 
 
+createAuction : SetupFields -> AuctionState
+createAuction setup =
+    let
+        { people, totalRent } =
+            setup
+
+        bidders =
+            List.map nameToBidder people
+
+        fake =
+            { name = "steve", status = Active }
+
+        defaultRent =
+            500
+    in
+    case totalRent of
+        Nothing ->
+            { max = defaultRent
+            , currBidder = fake
+            , nextBidder = bidders
+            , currPrice = defaultRent
+            , step = defaultRent * 0.5
+            }
+
+        Just val ->
+            { max = val
+            , currBidder = fake
+            , nextBidder = bidders
+            , currPrice = val
+            , step = val * 0.5
+            }
+
+
+nameToBidder : String -> Bidder
+nameToBidder name =
+    { name = name, status = Active }
+
+
 type alias AuctionState =
     { max : Float
     , currBidder : Bidder
@@ -42,26 +80,6 @@ type alias AuctionState =
     , currPrice : Float
     , step : Float
     }
-
-
-nextBidders : AuctionState -> AuctionState
-nextBidders oldState =
-    let
-        newCurrent =
-            List.head oldState.nextBidder
-    in
-    case newCurrent of
-        Nothing ->
-            oldState
-
-        Just new ->
-            { oldState
-                | currBidder = new
-                , nextBidder =
-                    List.drop 1 oldState.nextBidder
-                        ++ [ oldState.currBidder ]
-                        |> declineSort
-            }
 
 
 type Direction
@@ -84,6 +102,42 @@ type Problem
     | RoomProblem
 
 
+nextAuctionState : AuctionState -> Direction -> AuctionState
+nextAuctionState old dir =
+    { old | currPrice = nextAmount old.currPrice old.step dir, step = old.step * 0.5 }
+        |> nextBidders
+
+
+nextBidders : AuctionState -> AuctionState
+nextBidders oldState =
+    let
+        newCurrent =
+            List.head oldState.nextBidder
+    in
+    case newCurrent of
+        Nothing ->
+            oldState
+
+        Just new ->
+            { oldState
+                | currBidder = new
+                , nextBidder =
+                    List.drop 1 oldState.nextBidder
+                        ++ [ oldState.currBidder ]
+                        |> declineSort
+            }
+
+
+nextAmount : Float -> Float -> Direction -> Float
+nextAmount old step direction =
+    case direction of
+        Up ->
+            old + step
+
+        Down ->
+            old - step
+
+
 declineSort : List Bidder -> List Bidder
 declineSort bidders =
     List.sortWith declinedSortHelper bidders
@@ -101,23 +155,12 @@ declinedSortHelper a b =
         GT
 
 
-newAmount : Float -> Float -> Direction -> Float
-newAmount old step direction =
-    let
-        offset =
-            step * 0.5
-    in
-    case direction of
-        Up ->
-            old + offset
-
-        Down ->
-            old - offset
-
-
 hasWinner : AuctionState -> Bool
 hasWinner state =
     if isDeclined state.currBidder && allDeclined state.nextBidder then
+        False
+
+    else if not (allDeclined state.nextBidder) then
         False
 
     else
